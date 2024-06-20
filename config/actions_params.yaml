@@ -1,0 +1,41 @@
+
+move_action_node_robot1:
+  ros__parameters:
+    namespace: "robot1"
+    action_cost_plugin: "plansys2_actions_cost::MoveActionCostDuration"
+    
+    specialized_arguments: ["?0"]
+    "?0": ["robot1"]
+
+    # fluent_to_update: "move_duration"
+    # move_duration: [0,1,2]
+move_action_node_robot2:
+  ros__parameters:
+    namespace: "robot2"
+    action_cost_plugin: "plansys2_actions_cost::MoveActionCostDuration"
+    
+    specialized_arguments: ["?0"]
+    "?0": ["robot2"]
+
+
+patrol_action_node_robot1:
+  ros__parameters:
+    namespace: "robot1"
+    specialized_arguments: ["?0"]
+    "?0": ["robot1"]
+
+patrol_action_node_robot2:
+  ros__parameters:
+    namespace: "robot2"
+    specialized_arguments: ["?0"]
+    "?0": ["robot2"]
+    # action_cost_plugin: "plansys2_actions_cost::MoveActionCostDuration"
+    # fluent_to_update: "move_duration"
+    # move_duration: [0,1,2]
+
+clean_action_node:
+  ros__parameters:
+    namespace: ""
+    action_cost_plugin: "plansys2_actions_cost::MoveThroughPosesActionCostDuration"
+    # fluent_to_update: "move_duration"
+    # move_duration: [0,1,2]

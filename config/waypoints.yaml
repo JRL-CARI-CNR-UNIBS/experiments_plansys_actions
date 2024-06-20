@@ -1,0 +1,150 @@
+waypoints_broadcaster_node:
+  ros__parameters:
+    waypoints: 
+      - door_wp
+      - entrance
+      - first_room
+      - first_room_middle
+      - table
+      - room2
+      - room2_middle
+      - couch
+      - room3
+      - room2_entrance
+      - side_room
+    door_wp:
+      position:
+        x: -1.530040460241723
+        y: -4.985149555638838
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: -0.9008039552261617
+        w: 0.4342260174712049
+    entrance:
+      position:
+        x: -0.8582638135044962
+        y: -0.28950412631995087
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.8633233089980341
+        w: 0.504651230198327
+    first_room:
+      position:
+        x: -2.1625185216969816
+        y: -0.09664011651503496
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.9775039753229956
+        w: 0.21091699369121603
+    first_room_middle:
+      position:
+        x: -2.3942810361992017
+        y: 0.683519443916046
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.8627613240319747
+        w: 0.5056114098342658
+    table:
+      position:
+        x: -2.401514120552302
+        y: 2.747854096062228
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: -0.2787229142814198
+        w: 0.9603715619771716
+    room2:
+      position:
+        x: -1.6495879091900802
+        y: 4.356177083865586
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.23228036371641966
+        w: 0.9726488742767185
+    room2_middle: 
+      position:
+        x: -0.19440815339431894
+        y: 3.987352703157562
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.9643793293115895
+        w: 0.26452317326942965
+    couch:
+      position:
+        x: -1.5387626178040776
+        y: 5.091025234799736
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.7270246438172352
+        w: 0.686611365535426
+    room3:
+      position:
+        x: 1.9633151931129311
+        y: 4.192730303193913
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: -0.5392175794545897
+        w: 0.8421664930446552
+    room2_entrance:
+      position:
+        x: 2.0360714433374296
+        y: 2.4132548069823674
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.9457903655639737
+        w: 0.3247777461686146
+    side_room:
+      position:
+        x: -3.5812096680951893
+        y: -1.93708936010797
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.8726905390046262
+        w: 0.48827371742887715
+
+
+clean_waypoints:
+  ros__parameters:
+    start_wp: 
+      - room_0
+      - room_1
+      - room_2
+    
+    room_0: ["clean_00","clean_01","clean_02"]
+    room_1: ["clean_10","clean_11","clean_12"]
+    room_2: ["clean_20","clean_21","clean_22"]
+
+    clean_00:
+      x: 0.0
+      y: 0.0 
+      yaw: 0.0
+    clean_01:
+      x: 0.5
+      y: 0.0
+      yaw: 0.0
+    clean_02:
+      x: 1.0
+      y: 0.0
+      yaw: 1.57
+      
