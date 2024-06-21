@@ -81,7 +81,7 @@ def generate_launch_description():
         output='screen',
         parameters=[waypoints_config_params, 
                     robot1_move_action_params],
-        remappings=[('/tf_static', 'robot1/tf_static')]
+        # remappings=[('/tf_static', 'robot1/tf_static')]
     )
     robot2_move_cmd = Node(
         package='experiments_plansys_actions',
@@ -90,7 +90,7 @@ def generate_launch_description():
         output='screen',
         parameters=[waypoints_config_params, 
                     robot2_move_action_params],
-        remappings=[('/tf_static', 'robot2/tf_static')]
+        # remappings=[('/tf_static', 'robot2/tf_static')]
     )
 
     # robot2_move_cmd = Node(
@@ -124,8 +124,9 @@ def generate_launch_description():
         parameters=[clean_waypoints_config_params, 
                     clean_action_paramas],
         # namespace='robot1',
-        remappings=[('/tf', 'tf'),
-                    ('/tf_static', 'tf_static')])
+        # remappings=[('/tf', 'tf'),
+        #             ('/tf_static', 'tf_static')]
+    )
 
     # patrol_cmd = Node(
     #     package='plansys2_learning_patrolling',

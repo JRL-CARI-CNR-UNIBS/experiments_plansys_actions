@@ -54,6 +54,8 @@ public:
     problem_expert_->addInstance(plansys2::Instance{"first_room", "waypoint"});
     problem_expert_->addInstance(plansys2::Instance{"door_wp", "waypoint"});
     problem_expert_->addInstance(plansys2::Instance{"entrance", "waypoint"});
+    problem_expert_->addInstance(plansys2::Instance{"room2_middle", "waypoint"});
+
     problem_expert_->addInstance(plansys2::Instance{"first_room_middle", "waypoint"});
     problem_expert_->addInstance(plansys2::Instance{"table", "waypoint"});
 
@@ -106,7 +108,7 @@ public:
       case STARTING:
         {
           // Set the goal for next state
-          problem_expert_->setGoal(plansys2::Goal("(and (patrolled first_room) (patrolled table))"));
+          problem_expert_->setGoal(plansys2::Goal("(and (patrolled first_room))"));
 
           // Compute the plan
           auto domain = domain_expert_->getDomain();
@@ -205,10 +207,10 @@ public:
               std::cout << "Successful finished " << std::endl;
 
               // Cleanning up
-              problem_expert_->removePredicate(plansys2::Predicate("(patrolled first_room_middle)"));
+              // problem_expert_->removePredicate(plansys2::Predicate("(patrolled first_room_middle)"));
 
               // Set the goal for next state
-              problem_expert_->setGoal(plansys2::Goal("(and(patrolled table))"));
+              problem_expert_->setGoal(plansys2::Goal("(and (patrolled first_room) (patrolled room2_entrance))"));
 
               // Compute the plan
               auto domain = domain_expert_->getDomain();

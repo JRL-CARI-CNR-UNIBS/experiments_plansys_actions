@@ -49,7 +49,7 @@ class MoveAction : public plansys2_actions_clients::ActionObservedCostClient
 {
 public:
   MoveAction()
-  : plansys2_actions_clients::ActionObservedCostClient("move", 50ms) //: move_action_cost_loader_("plansys2_actions_cost", "plansys2_actions_cost::MoveActionCostBase")
+  : plansys2_actions_clients::ActionObservedCostClient("move", 500ms) //: move_action_cost_loader_("plansys2_actions_cost", "plansys2_actions_cost::MoveActionCostBase")
   {
     RCLCPP_INFO(get_logger(), "MoveAction created");
 
