@@ -35,7 +35,10 @@ patrol_action_node_robot2:
 
 clean_action_node:
   ros__parameters:
-    namespace: ""
+    namespace: "robot1"
+    specialized_arguments: ["?0"]
+    "?0": ["robot1"]
+
     action_cost_plugin: "plansys2_actions_cost::MoveThroughPosesActionCostDuration"
     # fluent_to_update: "move_duration"
     # move_duration: [0,1,2]

@@ -7,7 +7,7 @@ robot
 person
 waypoint
 room
-clean_waypoint
+; clean_waypoint
 );; end Types ;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Predicates ;;;;;;;;;;;;;;;;;;;;;;;;;

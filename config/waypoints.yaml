@@ -12,6 +12,7 @@ waypoints_broadcaster_node:
       - room3
       - room2_entrance
       - side_room
+      - clean1
     door_wp:
       position:
         x: -1.530040460241723
@@ -122,29 +123,97 @@ waypoints_broadcaster_node:
         y: 0.0
         z: 0.8726905390046262
         w: 0.48827371742887715
-
+    clean1:
+      position:
+        x: -2.3942810361992017
+        y: 0.683519443916046
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.8627613240319747
+        w: 0.5056114098342658
 
 clean_waypoints:
   ros__parameters:
     start_wp: 
-      - room_0
-      - room_1
-      - room_2
+      - clean1
+      # - room2
+      # - room3
     
-    room_0: ["clean_00","clean_01","clean_02"]
-    room_1: ["clean_10","clean_11","clean_12"]
-    room_2: ["clean_20","clean_21","clean_22"]
+    clean1: ["clean_00","clean_01","clean_02", "clean_03", "clean_04", "clean_05", "clean_06"]
+    # room2: ["clean_00","clean_01","clean_02"]
+    # room2: ["clean_00","clean_01","clean_02"]
 
     clean_00:
-      x: 0.0
-      y: 0.0 
-      yaw: 0.0
+      position:
+        x: -2.303433632855246
+        y: 0.12442300383605681
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.9479348505572305
+        w: 0.31846431369784767
+
     clean_01:
-      x: 0.5
-      y: 0.0
-      yaw: 0.0
+      position:
+        x: -2.9535238152644108
+        y: 0.8438598213098171
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.9220648903394715
     clean_02:
-      x: 1.0
-      y: 0.0
-      yaw: 1.57
+      position:
+        x: -3.565133433363479
+        y: 1.6472795840489283
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.9068132230950628
+        w: 0.4215326540375536
+    clean_03:
+      position:
+        x: -2.7732889348112226
+        y: 3.6495447681221926
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.44998546094731834
+        w: 0.8930358811022262
+    clean_04:
+      position:
+        x: -2.2993573783357917
+        y: 3.452506783296183
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: -0.8541914242894646
+        w: 0.5199586624630229
+    clean_05:
+      position:
+        x: -3.1532396403446645
+        y: 2.3654856518276373
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: -0.5729953771176881
+        w: 0.8195585993702698
+    clean_06:
+      position:
+        x: -2.25894236891745
+        y: 0.8032655768894761
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: -0.4306777272437816
+        w: 0.9025057868269493
+
       

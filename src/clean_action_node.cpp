@@ -74,22 +74,32 @@ public:
       for(const auto& cleaning_waypoint: cleaning_waypoints_names)
       {
         std::string cleaning_waypoints_name = std::string(start_wp_name);
-        declare_parameter<double>(cleaning_waypoint +  ".x", 0.0);
-        declare_parameter<double>(cleaning_waypoint + ".y", 0.0);
-        declare_parameter<double>(cleaning_waypoint + ".yaw", 0.0);
-        double x = get_parameter(cleaning_waypoint + ".x").as_double();
-        double y = get_parameter(cleaning_waypoint + ".y").as_double();
-        double yaw = get_parameter(cleaning_waypoint + ".yaw").as_double();
-        RCLCPP_INFO(get_logger(), "Cleaning waypoint [%s] x: %f, y: %f, yaw: %f", cleaning_waypoint.c_str(), x, y, yaw);
+        declare_parameter<double>(cleaning_waypoint + ".position.x", 0.0);
+        declare_parameter<double>(cleaning_waypoint + ".position.y", 0.0);
+        declare_parameter<double>(cleaning_waypoint + ".orientation.x", 0.0);
+        declare_parameter<double>(cleaning_waypoint + ".orientation.y", 0.0);
+        declare_parameter<double>(cleaning_waypoint + ".orientation.z", 0.0);
+        declare_parameter<double>(cleaning_waypoint + ".orientation.w", 1.0);
+
+        // declare_parameter<double>(cleaning_waypoint + "position.z", 0.0);
+        double x = get_parameter(cleaning_waypoint + ".position.x").as_double();
+        double y = get_parameter(cleaning_waypoint + ".position.y").as_double();
+        // double yaw = get_parameter(cleaning_waypoint + ".yaw").as_double();
+
+        RCLCPP_INFO(get_logger(), "Cleaning waypoint [%s] x: %f, y: %f", cleaning_waypoint.c_str(), x, y);
 
         geometry_msgs::msg::PoseStamped wp;
-        wp.header.frame_id = start_wp_name;
+        wp.header.frame_id = "map";
         wp.header.stamp = now();
         wp.pose.position.x = x;
         wp.pose.position.y = y;
         wp.pose.position.z = 0.0;
-        wp.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), yaw));
-        cleaning_waypoints_[cleaning_waypoint].push_back(wp);
+        wp.pose.orientation.x = get_parameter(cleaning_waypoint + ".orientation.x").as_double();
+        wp.pose.orientation.y = get_parameter(cleaning_waypoint + ".orientation.y").as_double();
+        wp.pose.orientation.z = get_parameter(cleaning_waypoint + ".orientation.z").as_double();
+        wp.pose.orientation.w = get_parameter(cleaning_waypoint + ".orientation.w").as_double();
+        // wp.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), yaw));
+        cleaning_waypoints_[start_wp_name].push_back(wp);
 
         geometry_msgs::msg::TransformStamped wp_t;
         wp_t.header = wp.header;
@@ -120,7 +130,7 @@ public:
   CallbackReturnT
   on_configure(const rclcpp_lifecycle::State & state)
   {
-    CallbackReturnT result = plansys2::ActionExecutorClient::on_configure(state);
+    CallbackReturnT result = plansys2_actions_clients::ActionObservedCostClient::on_configure(state);
     if(result != CallbackReturnT::SUCCESS)
     {
       return result;
@@ -152,6 +162,10 @@ public:
 
     RCLCPP_INFO(get_logger(), "Navigation action server ready");
 
+    for(const auto& arg: get_arguments())
+    {
+      RCLCPP_INFO(get_logger(), "Arg start: %s", arg.c_str());
+    }
     auto start_cleaning_waypoint = get_arguments()[2];  // The goal is in the 3rd argument of the action
     RCLCPP_INFO(get_logger(), "Start cleaning from [%s]", start_cleaning_waypoint.c_str());
     
@@ -160,7 +174,11 @@ public:
       RCLCPP_ERROR(get_logger(), "Waypoint not found, has to be managed by specialized arguments");
       return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::FAILURE;
     }
-    
+    RCLCPP_INFO(get_logger(), "Analyzing waypoints");
+    for(const auto& wp: cleaning_waypoints_[start_cleaning_waypoint])
+    {
+      RCLCPP_INFO(get_logger(), "Waypoint x: %f, y: %f", wp.pose.position.x, wp.pose.position.y);
+    }
     // waypoints_ = cleaning_waypoints_[start_cleaning_waypoint];
     
     // goal_pos_ = waypoints_;
@@ -215,7 +233,7 @@ private:
   void compute_action_cost(const plansys2_msgs::msg::ActionExecution::SharedPtr msg)
   {
     RCLCPP_INFO(get_logger(), "Compute action cost");
-    auto start_cleaning_waypoint = get_arguments()[1];  // The goal is in the 3rd argument of the action
+    auto start_cleaning_waypoint = get_arguments()[2];  // The goal is in the 3rd argument of the action
     RCLCPP_INFO(get_logger(), "Start cleaning from [%s]", start_cleaning_waypoint.c_str());
 
     if(cleaning_waypoints_.find(start_cleaning_waypoint) == cleaning_waypoints_.end())

@@ -116,10 +116,10 @@ def generate_launch_description():
         output='screen',
         parameters=[robot2_patrol_action_paramas])
 
-    clean_cmd = Node(
+    robot1_clean_cmd = Node(
         package='experiments_plansys_actions',
         executable='clean_action_node',
-        name='clean_action_node',
+        name='clean_action_node_robot1',
         output='screen',
         parameters=[clean_waypoints_config_params, 
                     clean_action_paramas],
@@ -145,7 +145,9 @@ def generate_launch_description():
     ld.add_action(robot2_move_cmd)
     ld.add_action(robot1_patrol_cmd)
     ld.add_action(robot2_patrol_cmd)
-    
+    ld.add_action(robot1_clean_cmd)
+    # ld.add_action(robot2_clean_cmd)
+
     # ld.add_action(patrol_cmd)
     # ld.add_action(clean_cmd)
     # ld.add_action(nav2_cmd)

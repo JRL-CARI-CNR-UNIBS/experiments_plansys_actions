@@ -166,9 +166,9 @@ public:
       NavigationGoalHandle::SharedPtr,
       NavigationFeedback feedback) {
         // plansys2::ActionExecutorClient::set_action_cost(feedback->distance_remaining, 0.0);
-        send_feedback(
-          std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
-          "Move running");
+        // send_feedback(
+        //   std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
+        //   "Move running");
       };
 
     send_goal_options.result_callback = [this](auto) {
