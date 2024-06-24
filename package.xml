@@ -12,6 +12,19 @@
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
+  <depend>plansys2_action_clients</depend>
+  <depend>plansys2_actions_cost</depend>
+  <depend>plansys2_msgs</depend>
+  <depend>nav2_msgs</depend>
+  <depend>nav2_util</depend>
+  <depend>plansys2_domain_expert</depend>
+  <depend>plansys2_executor</depend>
+  <depend>plansys2_planner</depend>
+  <depend>plansys2_problem_expert</depend>
+  <depend>plansys2_pddl_parser</depend>
+  <depend>tf2_ros</depend>
+  <depend>nav2_costmap_2d</depend>
+  
   <export>
     <build_type>ament_cmake</build_type>
   </export>

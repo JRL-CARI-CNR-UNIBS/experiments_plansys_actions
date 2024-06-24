@@ -26,6 +26,7 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 
 #include "nav2_msgs/action/navigate_through_poses.hpp"
+#include "nav2_msgs/action/follow_path.hpp"
 
 #include "plansys2_executor/ActionExecutorClient.hpp"
 #include "plansys2_action_clients/action_observed_cost_client.hpp"
@@ -145,6 +146,16 @@ public:
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_activate(const rclcpp_lifecycle::State & previous_state)
   {
+    auto path = move_action_cost_->get_path();
+    follow_goal_.path = *path;
+    follow_goal_.controller_id = "FollowPath";
+    follow_goal_.goal_checker_id = "goal_checker";
+
+    follow_action_client_ =
+      rclcpp_action::create_client<nav2_msgs::action::FollowPath>(
+      shared_from_this(),
+      namespace_ + "/follow_path");
+
     send_feedback(0.0, "Clean starting");
 
     navigation_action_client_ =
@@ -153,12 +164,15 @@ public:
       namespace_ + "/navigate_through_poses");
 
     bool is_action_server_ready = false;
+    bool is_follow_action_ready = false;
     do {
       RCLCPP_INFO(get_logger(), "Waiting for navigation action server...");
 
       is_action_server_ready =
         navigation_action_client_->wait_for_action_server(std::chrono::seconds(5));
-    } while (!is_action_server_ready && rclcpp::ok());
+      is_follow_action_ready = 
+        follow_action_client_->wait_for_action_server(std::chrono::seconds(5));  
+    } while (!is_action_server_ready && rclcpp::ok() && !is_follow_action_ready);
 
     RCLCPP_INFO(get_logger(), "Navigation action server ready");
 
@@ -183,11 +197,17 @@ public:
     
     // goal_pos_ = waypoints_;
     navigation_goal_.poses = cleaning_waypoints_[start_cleaning_waypoint];
+    for(const auto& wp: navigation_goal_.poses)
+    {
+      RCLCPP_INFO(get_logger(), "Goal x: %f, y: %f", wp.pose.position.x, wp.pose.position.y);
+    }
     // TODO(@samu) to check if the goal is the last one
     dist_to_move = 10; //getDistance(navigation_goal_.poses., current_pos_.pose);
 
     auto send_goal_options =
       rclcpp_action::Client<nav2_msgs::action::NavigateThroughPoses>::SendGoalOptions();
+    auto follow_send_goal_options =
+      rclcpp_action::Client<nav2_msgs::action::FollowPath>::SendGoalOptions();
 
     send_goal_options.feedback_callback = [this](
       NavigationGoalHandle::SharedPtr,
@@ -213,6 +233,34 @@ public:
 
     future_navigation_goal_handle_ =
       navigation_action_client_->async_send_goal(navigation_goal_, send_goal_options);
+
+    // follow path
+    follow_send_goal_options.feedback_callback = [this](
+      FollowGoalHandle::SharedPtr,
+      FollowFeedback feedback) {
+        // plansys2::ActionExecutorClient::set_action_cost(feedback->distance_remaining, 0.0);
+        send_feedback(
+          std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_to_goal / dist_to_move))),
+          "Move running");
+      };
+
+    follow_send_goal_options.result_callback = [this](auto) {
+        // finish(true, 1.0, "Move completed");
+        // compute the end_time and the duration end-start and update fluents
+        rclcpp::Time end_time = now();
+        auto action_duration = end_time - start_time_;
+        double duration = action_duration.nanoseconds() * 1e-9;
+        
+        finish(true, 1.0, "Move completed", duration);
+
+        RCLCPP_INFO(get_logger(), "Measured Action duration: %f", duration);
+
+      };
+
+    // future_follow_goal_handle_ =
+    //   follow_action_client_->async_send_goal(follow_goal_, follow_send_goal_options);
+
+
 
     return ActionExecutorClient::on_activate(previous_state);
   }
@@ -263,10 +311,18 @@ private:
   using NavigationFeedback =
     const std::shared_ptr<const nav2_msgs::action::NavigateThroughPoses::Feedback>;
 
+  using FollowGoalHandle =
+    rclcpp_action::ClientGoalHandle<nav2_msgs::action::FollowPath>;
+  using FollowFeedback =
+    const std::shared_ptr<const nav2_msgs::action::FollowPath::Feedback>;
 
   rclcpp_action::Client<nav2_msgs::action::NavigateThroughPoses>::SharedPtr navigation_action_client_;
   std::shared_future<NavigationGoalHandle::SharedPtr> future_navigation_goal_handle_;
   NavigationGoalHandle::SharedPtr navigation_goal_handle_;
+
+  rclcpp_action::Client<nav2_msgs::action::FollowPath>::SharedPtr follow_action_client_;
+  std::shared_future<FollowGoalHandle::SharedPtr> future_follow_goal_handle_;
+  FollowGoalHandle::SharedPtr follow_goal_handle_;
 
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pos_sub_;
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_pub_;
@@ -274,6 +330,7 @@ private:
   geometry_msgs::msg::PoseStamped current_pos_;
   // std::vector<geometry_msgs::msg::PoseStamped> goal_pos_;
   nav2_msgs::action::NavigateThroughPoses::Goal navigation_goal_;
+  nav2_msgs::action::FollowPath::Goal follow_goal_;
 
   double dist_to_move;
 

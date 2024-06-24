@@ -42,3 +42,8 @@ clean_action_node:
     action_cost_plugin: "plansys2_actions_cost::MoveThroughPosesActionCostDuration"
     # fluent_to_update: "move_duration"
     # move_duration: [0,1,2]
+
+controller_node:
+  ros__parameters:
+    goal: "(and (patrolled table) (patrolled room2_middle))"
+    # goal: "(and (cleaned room1))"

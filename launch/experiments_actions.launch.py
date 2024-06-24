@@ -63,6 +63,7 @@ def generate_launch_description():
         config_file = yaml.safe_load(file)
         waypoints_config_params = config_file['waypoints_broadcaster_node']['ros__parameters']
         clean_waypoints_config_params = config_file['clean_waypoints']['ros__parameters']  
+        # controller_node_param = config_file['controller_node']['ros__parameters']
 
     with open(actions_param_path, 'r') as file:
         actions_config_params = yaml.safe_load(file)
@@ -143,9 +144,9 @@ def generate_launch_description():
     ld.add_action(plansys2_cmd)
     ld.add_action(robot1_move_cmd)
     ld.add_action(robot2_move_cmd)
-    ld.add_action(robot1_patrol_cmd)
-    ld.add_action(robot2_patrol_cmd)
-    ld.add_action(robot1_clean_cmd)
+    # ld.add_action(robot1_patrol_cmd)
+    # ld.add_action(robot2_patrol_cmd)
+    # ld.add_action(robot1_clean_cmd)
     # ld.add_action(robot2_clean_cmd)
 
     # ld.add_action(patrol_cmd)

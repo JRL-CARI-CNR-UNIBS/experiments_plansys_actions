@@ -68,6 +68,8 @@ public:
     problem_expert_->addInstance(plansys2::Instance{"table", "waypoint"});
     problem_expert_->addInstance(plansys2::Instance{"sofa", "waypoint"});
     problem_expert_->addInstance(plansys2::Instance{"corridor", "waypoint"});
+    problem_expert_->addInstance(plansys2::Instance{"room2_middle", "waypoint"});
+    
     problem_expert_->addInstance(plansys2::Instance{"start_wp_robot1", "waypoint"});
     problem_expert_->addInstance(plansys2::Instance{"start_wp_robot2", "waypoint"});
     problem_expert_->addInstance(plansys2::Instance{"start_wp_robot3", "waypoint"});
@@ -156,8 +158,8 @@ public:
 
   void step()
   {
-    // problem_expert_->setGoal(plansys2::Goal("(and (patrolled room2_middle) (patrolled entrance))"));
-    problem_expert_->setGoal(plansys2::Goal("(and (cleaned room1))"));
+    problem_expert_->setGoal(plansys2::Goal("(and (patrolled room2_middle) (patrolled entrance))"));
+    // problem_expert_->setGoal(plansys2::Goal("(and (cleaned room3))"));
 
     // Compute the plan
     auto domain = domain_expert_->getDomain();
@@ -196,7 +198,7 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
   auto node = std::make_shared<PatrollingController>();
-
+  
   node->init();
   node->step();
   rclcpp::Rate rate(5);
