@@ -29,12 +29,14 @@
 
 #include <fstream>
 
-class PatrollingController : public rclcpp::Node
+class ExperimentsController : public rclcpp::Node
 {
 public:
-  PatrollingController()
-  : rclcpp::Node("patrolling_controller"), state_(STARTING)
+  ExperimentsController()
+  : rclcpp::Node("experiments_controller"), state_(STARTING)
   {
+    declare_parameter<std::string>("problem", std::string(""));
+    declare_parameter<std::string>("goal", std::string(""));
   }
 
   void init()
@@ -48,6 +50,12 @@ public:
 
   void init_knowledge()
   {
+    std::string problem;
+    get_parameter_or("problem", problem, std::string(""));
+    RCLCPP_INFO(get_logger(), "Problem: %s", problem.c_str());
+
+    problem_expert_->addProblem(problem);
+    /*
     problem_expert_->addInstance(plansys2::Instance{"robot1", "robot"});
     problem_expert_->addInstance(plansys2::Instance{"robot2", "robot"});
 
@@ -89,8 +97,8 @@ public:
     
     problem_expert_->addPredicate(plansys2::Predicate("(welcome_waypoint entrance)"));
     problem_expert_->addPredicate(plansys2::Predicate("(destination_waypoint table)"));
-
-
+    */
+    // fino a qui
     // problem_expert_->addInstance(plansys2::Instance{"robot1", "robot"});
     // problem_expert_->addInstance(plansys2::Instance{"robot2", "robot"});
 
@@ -158,8 +166,24 @@ public:
 
   void step()
   {
-    problem_expert_->setGoal(plansys2::Goal("(and (patrolled room2_middle) (patrolled entrance))"));
-    // problem_expert_->setGoal(plansys2::Goal("(and (cleaned room3))"));
+    // problem_expert_->setGoal(plansys2::Goal("(and (patrolled room2_middle) (patrolled entrance))"));
+    // problem_expert_->setGoal(plansys2::Goal("(and (cleaned room2) (cleaned room1) (cleaned room3))"));
+    std::string goal;
+
+    get_parameter_or("goal", goal, std::string(""));
+    if(!goal.empty())
+    {
+      if(!problem_expert_->clearGoal())
+      {
+        throw std::runtime_error("Goal of the problem file is not cleared correctly.");
+      }
+      RCLCPP_INFO(get_logger(), "Goal: %s",goal.c_str());
+      if(!problem_expert_->setGoal(plansys2::Goal(goal.c_str())))
+      {
+        throw std::runtime_error("Goal of the problem file is not set correctly.");
+      }
+      RCLCPP_INFO(get_logger(), "Goal of the problem is overritten by the param.");
+    }
 
     // Compute the plan
     auto domain = domain_expert_->getDomain();
@@ -197,10 +221,17 @@ private:
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  auto node = std::make_shared<PatrollingController>();
+  auto node = std::make_shared<ExperimentsController>();
   
   node->init();
-  node->step();
+  try{
+    node->step();
+  }
+  catch(const std::exception & e)
+  {
+    RCLCPP_ERROR(node->get_logger(), e.what());
+    return 0;
+  }
   rclcpp::Rate rate(5);
   while (rclcpp::ok()) {
     // node->step();

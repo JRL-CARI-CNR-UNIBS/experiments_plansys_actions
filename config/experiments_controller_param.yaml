@@ -1,0 +1,7 @@
+
+experiments_controller_node:
+  ros__parameters:
+    problem_name: "hospital_problem.pddl"
+    problem: "" # this is filled automatically by the launcher
+    goal: "(and (patrolled table) (patrolled room2_middle))"
+    

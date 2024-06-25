@@ -43,7 +43,7 @@ def generate_launch_description():
             get_package_share_directory('plansys2_bringup'),
             'launch',
             'plansys2_bringup_launch_monolithic.py')),
-        launch_arguments={'model_file': package_dir + '/pddl/test_domain.pddl',
+        launch_arguments={'model_file': package_dir + '/pddl/hospital_domain.pddl',
                           'use_auction_mechanism': use_auction_mechanism}.items()
         )
     
@@ -73,7 +73,8 @@ def generate_launch_description():
     robot1_patrol_action_paramas = actions_config_params['patrol_action_node_robot1']['ros__parameters']
     robot2_patrol_action_paramas = actions_config_params['patrol_action_node_robot2']['ros__parameters']
 
-    clean_action_paramas = actions_config_params['clean_action_node']['ros__parameters']
+    robot1_clean_action_paramas = actions_config_params['clean_action_node_robot1']['ros__parameters']
+    robot2_clean_action_paramas = actions_config_params['clean_action_node_robot2']['ros__parameters']
 
     robot1_move_cmd = Node(
         package='experiments_plansys_actions',
@@ -123,11 +124,23 @@ def generate_launch_description():
         name='clean_action_node_robot1',
         output='screen',
         parameters=[clean_waypoints_config_params, 
-                    clean_action_paramas],
+                    robot1_clean_action_paramas],
         # namespace='robot1',
         # remappings=[('/tf', 'tf'),
         #             ('/tf_static', 'tf_static')]
     )
+    robot2_clean_cmd = Node(
+        package='experiments_plansys_actions',
+        executable='clean_action_node',
+        name='clean_action_node_robot2',
+        output='screen',
+        parameters=[clean_waypoints_config_params, 
+                    robot2_clean_action_paramas],
+        # namespace='robot1',
+        # remappings=[('/tf', 'tf'),
+        #             ('/tf_static', 'tf_static')]
+    )
+
 
     # patrol_cmd = Node(
     #     package='plansys2_learning_patrolling',
@@ -144,10 +157,10 @@ def generate_launch_description():
     ld.add_action(plansys2_cmd)
     ld.add_action(robot1_move_cmd)
     ld.add_action(robot2_move_cmd)
-    # ld.add_action(robot1_patrol_cmd)
-    # ld.add_action(robot2_patrol_cmd)
-    # ld.add_action(robot1_clean_cmd)
-    # ld.add_action(robot2_clean_cmd)
+    ld.add_action(robot1_patrol_cmd)
+    ld.add_action(robot2_patrol_cmd)
+    ld.add_action(robot1_clean_cmd)
+    ld.add_action(robot2_clean_cmd)
 
     # ld.add_action(patrol_cmd)
     # ld.add_action(clean_cmd)

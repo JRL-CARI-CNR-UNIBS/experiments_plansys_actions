@@ -119,13 +119,21 @@ public:
   CallbackReturnT
   on_configure(const rclcpp_lifecycle::State & state)
   {
-    CallbackReturnT result = plansys2_actions_clients::ActionObservedCostClient::on_configure(state);
-    if(result != CallbackReturnT::SUCCESS)
-    {
-      return result;
+    CallbackReturnT result = plansys2::ActionExecutorClient::on_configure(state);
+    for(const auto & arg : specialized_arguments_) {
+      RCLCPP_INFO(get_logger(), "DECLERING arg: %s", arg.c_str());
+      declare_parameter<std::vector<std::string>>(arg, std::vector<std::string>());
+      get_parameter(arg, associated_arguments_[arg]);   
     }
+    for(const auto & arg : associated_arguments_) {
+      RCLCPP_INFO(get_logger(), "Specialized arg: %s", arg.first.c_str());
+        for(const auto & arg : arg.second) {
+          RCLCPP_INFO(get_logger(), "Spec Arg: %s", arg.c_str());
+        }
+    }
+
     RCLCPP_INFO(get_logger(), "MoveAction pre configured");
-    move_action_cost_->initialize(std::dynamic_pointer_cast<plansys2_actions_clients::ActionObservedCostClient>(shared_from_this()));
+    // move_action_cost_->initialize(std::dynamic_pointer_cast<plansys2::ActionExecutorClient>(shared_from_this()));
     RCLCPP_INFO(get_logger(), "MoveAction post configured");
 
     return CallbackReturnT::SUCCESS; 
@@ -178,7 +186,7 @@ public:
         auto action_duration = end_time - start_time_;
         double duration = action_duration.nanoseconds() * 1e-9;
         
-        finish(true, 1.0, "Move completed", duration);
+        finish(true, 1.0, "Move completed");
 
         RCLCPP_INFO(get_logger(), "Measured Action duration: %f", duration);
         // std::shared_ptr<plansys2::ProblemExpertClient> problem_expert_ = std::make_shared<plansys2::ProblemExpertClient>();
@@ -198,6 +206,70 @@ public:
 
     return ActionExecutorClient::on_activate(previous_state);
   }
+protected:
+  std::map<std::string, std::vector<std::string>> associated_arguments_;
+
+  bool
+  should_execute(
+    const std::string & action, const std::vector<std::string> & args)
+  {
+    if (action != action_managed_) {
+      return false;
+    }
+    RCLCPP_INFO(get_logger(), "Action: %s", get_action_name().c_str()); 
+
+    for(const auto & arg: args)
+    {
+      RCLCPP_INFO(get_logger(), "Arg: %s", arg.c_str());
+    }
+    RCLCPP_INFO(get_logger(), "AQUI");
+    RCLCPP_INFO(get_logger(), "Associated args: %d", associated_arguments_.size());
+    for(const auto& pair: associated_arguments_)
+    {
+      RCLCPP_INFO(get_logger(), "Specialized arg: %s", pair.first.c_str());
+      for(const auto & arg: pair.second)
+      {
+        RCLCPP_INFO(get_logger(), "Spec Arg: %s", arg.c_str());
+      }
+    }
+    if (!specialized_arguments_.empty()) {
+      RCLCPP_INFO(get_logger(), "Here");
+      for(const auto & specialized_arg : specialized_arguments_) {
+        RCLCPP_INFO(get_logger(), "Specialized arg: %s", specialized_arg.c_str());
+        size_t pos = specialized_arg.find("?");
+        RCLCPP_INFO(get_logger(), "Pos: %d", pos);
+        if(pos != std::string::npos) {
+          RCLCPP_INFO(get_logger(), "Found ?");
+          RCLCPP_INFO(get_logger(), "%s", specialized_arg.substr(pos+1));
+          int arg_num = std::stoi(specialized_arg.substr(pos+1));      
+          RCLCPP_INFO(get_logger(), "Arg num: %d", arg_num);
+          if(arg_num < args.size()){
+            RCLCPP_INFO(get_logger(), "Look for %s that arg between:", args[0].c_str());
+            for(const auto & arg : associated_arguments_[specialized_arg]) {
+              RCLCPP_INFO(get_logger(), "Arg: %s", arg.c_str());
+            }
+            if (std::find(associated_arguments_[specialized_arg].begin(), 
+                          associated_arguments_[specialized_arg].end(), 
+                          args[0].c_str()) == associated_arguments_[specialized_arg].end()) {
+              RCLCPP_INFO(get_logger(), "I [%s, %s] am not specialized for this args",
+                          get_name(), get_action_name().c_str());
+              return false;
+            }
+          }
+          else {
+            RCLCPP_INFO(get_logger(), "You specified arg n: %d but the action has n: %d args", arg_num, args.size());
+          }
+        }
+        else {
+          RCLCPP_INFO(get_logger(), "No ? in specialized args");
+        }
+      }
+    }
+    RCLCPP_INFO(get_logger(), "I [%s, %s] am specialized for this args",
+                get_name(), get_action_name().c_str());
+    return true;
+  }
+
 
 private:
 
@@ -212,36 +284,36 @@ private:
   {
   }
   
-  void compute_action_cost(const plansys2_msgs::msg::ActionExecution::SharedPtr msg)
-  {
-    RCLCPP_INFO(get_logger(), "Compute action cost");
-    auto wp_to_navigate = get_arguments()[2];  // The goal is in the 3rd argument of the action
+  // void compute_action_cost(const plansys2_msgs::msg::ActionExecution::SharedPtr msg)
+  // {
+  //   RCLCPP_INFO(get_logger(), "Compute action cost");
+  //   auto wp_to_navigate = get_arguments()[2];  // The goal is in the 3rd argument of the action
     
-    RCLCPP_INFO(get_logger(), "Computing cost to [%s]", wp_to_navigate.c_str()); 
-    if(waypoints_.find(wp_to_navigate) == waypoints_.end())
-    {
-      RCLCPP_ERROR(get_logger(), "Waypoint not found, has to be managed by specialized arguments");
-      plansys2::ActionExecutorClient::set_action_cost(std::numeric_limits<double>::infinity(), 0.0);
-      // TODO(@samuele): It is not enough to set the cost, we have to send a response! Check this!
-    }
-    auto goal_pose = waypoints_[wp_to_navigate];
-    /* Send waypoints to tf broadcaster */
-    std::cerr << "Sending waypoint to tf broadcaster" << std::endl;
-    geometry_msgs::msg::TransformStamped wp_t;
-    wp_t.header = goal_pose.header;
-    wp_t.child_frame_id = std::string(get_name()) + "_" + wp_to_navigate;
-    wp_t.transform.translation.x = goal_pose.pose.position.x;
-    wp_t.transform.translation.y = goal_pose.pose.position.y;
-    wp_t.transform.translation.z = goal_pose.pose.position.z;
-    wp_t.transform.rotation = goal_pose.pose.orientation;
-    tf_broadcaster_->sendTransform(wp_t);
+  //   RCLCPP_INFO(get_logger(), "Computing cost to [%s]", wp_to_navigate.c_str()); 
+  //   if(waypoints_.find(wp_to_navigate) == waypoints_.end())
+  //   {
+  //     RCLCPP_ERROR(get_logger(), "Waypoint not found, has to be managed by specialized arguments");
+  //     plansys2::ActionExecutorClient::set_action_cost(std::numeric_limits<double>::infinity(), 0.0);
+  //     // TODO(@samuele): It is not enough to set the cost, we have to send a response! Check this!
+  //   }
+  //   auto goal_pose = waypoints_[wp_to_navigate];
+  //   /* Send waypoints to tf broadcaster */
+  //   std::cerr << "Sending waypoint to tf broadcaster" << std::endl;
+  //   geometry_msgs::msg::TransformStamped wp_t;
+  //   wp_t.header = goal_pose.header;
+  //   wp_t.child_frame_id = std::string(get_name()) + "_" + wp_to_navigate;
+  //   wp_t.transform.translation.x = goal_pose.pose.position.x;
+  //   wp_t.transform.translation.y = goal_pose.pose.position.y;
+  //   wp_t.transform.translation.z = goal_pose.pose.position.z;
+  //   wp_t.transform.rotation = goal_pose.pose.orientation;
+  //   tf_broadcaster_->sendTransform(wp_t);
 
-    move_action_cost_->compute_action_cost(goal_pose, msg);
-    // while(!move_action_cost_->is_action_cost_setted())
-    // {
-    //   this->set_action_cost(move_action_cost_->get_action_cost());
-    // }
-  } 
+  //   move_action_cost_->compute_action_cost(goal_pose, msg);
+  //   // while(!move_action_cost_->is_action_cost_setted())
+  //   // {
+  //   //   this->set_action_cost(move_action_cost_->get_action_cost());
+  //   // }
+  // } 
 
   std::map<std::string, geometry_msgs::msg::PoseStamped> waypoints_;
   std::unique_ptr<tf2_ros::StaticTransformBroadcaster> tf_broadcaster_;

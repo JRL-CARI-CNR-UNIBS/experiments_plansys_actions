@@ -33,7 +33,7 @@ patrol_action_node_robot2:
     # fluent_to_update: "move_duration"
     # move_duration: [0,1,2]
 
-clean_action_node:
+clean_action_node_robot1:
   ros__parameters:
     namespace: "robot1"
     specialized_arguments: ["?0"]
@@ -43,7 +43,14 @@ clean_action_node:
     # fluent_to_update: "move_duration"
     # move_duration: [0,1,2]
 
-controller_node:
+clean_action_node_robot2:
   ros__parameters:
-    goal: "(and (patrolled table) (patrolled room2_middle))"
-    # goal: "(and (cleaned room1))"
+    namespace: "robot2"
+    specialized_arguments: ["?0"]
+    "?0": ["robot2"]
+
+    action_cost_plugin: "plansys2_actions_cost::MoveThroughPosesActionCostDuration"
+    # fluent_to_update: "move_duration"
+    # move_duration: [0,1,2]
+
+

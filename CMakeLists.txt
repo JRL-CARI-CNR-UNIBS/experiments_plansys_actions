@@ -44,6 +44,9 @@ set(dependencies
     plansys2_action_clients
 )
 
+add_executable(move_action_pure_node src/move_action_pure_node.cpp)
+ament_target_dependencies(move_action_pure_node ${dependencies})
+
 add_executable(move_action_node src/move_action_node.cpp)
 ament_target_dependencies(move_action_node ${dependencies})
 
@@ -53,8 +56,8 @@ ament_target_dependencies(patrol_action_node ${dependencies})
 add_executable(clean_action_node src/clean_action_node.cpp)
 ament_target_dependencies(clean_action_node ${dependencies})
 
-add_executable(patrolling_controller_node src/patrolling_controller_node.cpp)
-ament_target_dependencies(patrolling_controller_node ${dependencies})
+add_executable(experiments_controller_node src/experiments_controller_node.cpp)
+ament_target_dependencies(experiments_controller_node ${dependencies})
 
 install(DIRECTORY launch pddl config DESTINATION share/${PROJECT_NAME})
 
@@ -62,7 +65,7 @@ install(TARGETS
   move_action_node
   patrol_action_node
   clean_action_node
-  patrolling_controller_node
+  experiments_controller_node
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}

@@ -5,6 +5,7 @@
     robot
     room
     waypoint
+    ; cw - waypoint
     person
   )
   
@@ -36,7 +37,7 @@
     :parameters (?r - robot ?rm - room ?w - waypoint)
     :duration (= ?duration 5) ; Durata di 5 unità di tempo
     :condition (and
-      (at start (robot_at ?r ?w))
+      (over all (robot_at ?r ?w))
       (over all (waypoint_of_room ?w ?rm))
       (over all (cleaning_waypoint ?w))
     )
@@ -47,7 +48,7 @@
     :parameters (?r - robot ?w - waypoint)
     :duration (= ?duration 3) ; Durata di 3 unità di tempo
     :condition (and
-      (at start (robot_at ?r ?w))
+      (over all (robot_at ?r ?w))
     )
     :effect (at end (patrolled ?w))
   )
