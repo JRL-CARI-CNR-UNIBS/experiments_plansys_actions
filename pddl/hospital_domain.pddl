@@ -23,7 +23,7 @@
   
   (:durative-action move
     :parameters (?r - robot ?from - waypoint ?to - waypoint)
-    :duration (= ?duration 2) ; Durata di 2 unità di tempo
+    :duration (= ?duration 2) 
     :condition (and
       (at start (robot_at ?r ?from))
     )
@@ -35,7 +35,7 @@
   
   (:durative-action clean
     :parameters (?r - robot ?rm - room ?w - waypoint)
-    :duration (= ?duration 5) ; Durata di 5 unità di tempo
+    :duration (= ?duration 5)
     :condition (and
       (over all (robot_at ?r ?w))
       (over all (waypoint_of_room ?w ?rm))
@@ -46,7 +46,7 @@
   
   (:durative-action patrol
     :parameters (?r - robot ?w - waypoint)
-    :duration (= ?duration 3) ; Durata di 3 unità di tempo
+    :duration (= ?duration 3)
     :condition (and
       (over all (robot_at ?r ?w))
     )

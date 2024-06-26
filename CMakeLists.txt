@@ -23,6 +23,8 @@ find_package(nav2_costmap_2d REQUIRED)
 find_package(plansys2_actions_cost REQUIRED)
 find_package(plansys2_action_clients REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(audio_common_msgs REQUIRED)
+
 include_directories(include
   ${plansys2_action_clients_INCLUDE_DIRS} 
 )
@@ -42,7 +44,11 @@ set(dependencies
     plansys2_actions_cost
     pluginlib
     plansys2_action_clients
+    audio_common_msgs
 )
+
+add_executable(assist_person_node src/assist_person_node.cpp)
+ament_target_dependencies(assist_person_node ${dependencies})
 
 add_executable(attend_person_node src/attend_person_node.cpp)
 ament_target_dependencies(attend_person_node ${dependencies})
@@ -69,6 +75,7 @@ install(TARGETS
   patrol_action_node
   clean_action_node
   attend_person_node
+  assist_person_node
   experiments_controller_node
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

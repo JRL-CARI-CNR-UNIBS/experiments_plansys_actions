@@ -21,10 +21,10 @@
   )
 
   (:functions
-    (duration_move ?r - robot ?from - waypoint ?to - waypoint) - number
-    (duration_clean ?r - robot ?rm - room ?w - waypoint) - number
-    (duration_patrol ?r - robot ?w - waypoint) - number
-    (duration_attend_person ?r - robot ?p - person ?w_welcome - waypoint ?w_dest - waypoint) - number
+    (duration_move ?r - robot ?from - waypoint ?to - waypoint)
+    (duration_clean ?r - robot ?rm - room ?w - waypoint)
+    (duration_patrol ?r - robot ?w - waypoint) 
+    (duration_attend_person ?r - robot ?p - person ?w_welcome - waypoint ?w_dest - waypoint)
   )
 
   (:durative-action move

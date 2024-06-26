@@ -243,6 +243,7 @@ private:
   std::shared_ptr<plansys2_actions_cost::MoveActionCostBase> move_action_cost_;
   std::shared_ptr<pluginlib::ClassLoader<plansys2_actions_cost::MoveActionCostBase>> move_action_cost_loader_; // {"plansys2_actions_cost", "plansys2_actions_cost::MoveActionCostBase"};
   std::string namespace_;
+  
   using NavigationGoalHandle =
     rclcpp_action::ClientGoalHandle<nav2_msgs::action::NavigateToPose>;
   using NavigationFeedback =

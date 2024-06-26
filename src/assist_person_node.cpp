@@ -135,6 +135,15 @@ public:
   {
     send_feedback(0.0, "AttendPerson starting");
 
+    speak_client_ = rclcpp_action::create_client<audio_common_msgs::action::TTS>(shared_from_this(), "/say");
+    bool speak_ready = speak_client_->wait_for_action_server(std::chrono::seconds(2));
+    if(speak_ready)
+    {
+      auto goal = audio_common_msgs::action::TTS::Goal();
+      goal.text = "I am your assistance. I will accompany you to your destination.";
+      auto future_goal_handle = speak_client_->async_send_goal(goal);
+    }
+    
     navigation_action_client_ =
       rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
       shared_from_this(),
@@ -156,44 +165,35 @@ public:
     goal_pos_ = waypoints_[wp_to_navigate];
     navigation_goal_.pose = goal_pos_;
 
-    dist_to_move = getDistance(goal_pos_.pose, current_pos_.pose);
+          dist_to_move = getDistance(goal_pos_.pose, current_pos_.pose);
 
-    auto send_goal_options =
-      rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
+      auto send_goal_options =
+        rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SendGoalOptions();
 
-    send_goal_options.feedback_callback = [this](
-      NavigationGoalHandle::SharedPtr,
-      NavigationFeedback feedback) {
-        // plansys2::ActionExecutorClient::set_action_cost(feedback->distance_remaining, 0.0);
-        // send_feedback(
-        //   std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
-        //   "Move running");
-      };
+      send_goal_options.feedback_callback = [this](
+        NavigationGoalHandle::SharedPtr,
+        NavigationFeedback feedback) {
+          // plansys2::ActionExecutorClient::set_action_cost(feedback->distance_remaining, 0.0);
+          // send_feedback(
+          //   std::min(1.0, std::max(0.0, 1.0 - (feedback->distance_remaining / dist_to_move))),
+          //   "Move running");
+        };
 
-    send_goal_options.result_callback = [this](auto) {
-        // finish(true, 1.0, "Move completed");
-        // compute the end_time and the duration end-start and update fluents
-        rclcpp::Time end_time = now();
-        auto action_duration = end_time - start_time_;
-        double duration = action_duration.nanoseconds() * 1e-9;
+      send_goal_options.result_callback = [this](auto) {
+          // finish(true, 1.0, "Move completed");
+          // compute the end_time and the duration end-start and update fluents
         
-        finish(true, 1.0, "Move completed", duration);
+          rclcpp::Time end_time = now();
+          auto action_duration = end_time - start_time_;
+          double duration = action_duration.nanoseconds() * 1e-9;
+          
+          finish(true, 1.0, "Move completed", duration);
 
-        RCLCPP_INFO(get_logger(), "Measured Action duration: %f", duration);
-        // std::shared_ptr<plansys2::ProblemExpertClient> problem_expert_ = std::make_shared<plansys2::ProblemExpertClient>();
-        // auto args = get_arguments();
-        // for(auto & arg : args)
-        // {
-        //   RCLCPP_INFO(get_logger(), "Arg: %s", arg.c_str());
-        // }
-        // problem_expert_->updateFunction(plansys2::Function("(= (move_duration " + args[0] + " " + args[1] + " " + args[2] + ") " + std::to_string(duration) + ")"));
-        // RCLCPP_INFO(get_logger(), "Updated move_duration");
-        // problem_expert_->updateFunction(plansys2::Function("(= (move_duration r2d2 wp4 wp_control) 1000)"));
-        // update_knowledge();
-      };
+          RCLCPP_INFO(get_logger(), "Measured Action duration: %f", duration);
+        };
 
-    future_navigation_goal_handle_ =
-      navigation_action_client_->async_send_goal(navigation_goal_, send_goal_options);
+      future_navigation_goal_handle_ =
+        navigation_action_client_->async_send_goal(navigation_goal_, send_goal_options);
 
     return ActionExecutorClient::on_activate(previous_state);
   }
@@ -209,6 +209,7 @@ private:
 
   void do_work()
   {
+
   }
   
   void compute_action_cost(const plansys2_msgs::msg::ActionExecution::SharedPtr msg)
@@ -253,6 +254,7 @@ private:
   rclcpp_action::Client<nav2_msgs::action::NavigateToPose>::SharedPtr navigation_action_client_;
   std::shared_future<NavigationGoalHandle::SharedPtr> future_navigation_goal_handle_;
   NavigationGoalHandle::SharedPtr navigation_goal_handle_;
+  std::shared_ptr<rclcpp_action::Client<audio_common_msgs::action::TTS>> speak_client_;
 
   rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pos_sub_;
   rclcpp::Publisher<nav_msgs::msg::Path>::SharedPtr path_pub_;
@@ -264,6 +266,9 @@ private:
   double dist_to_move;
 
   bool test_;
+  typedef enum {INIT,SPEACK,MOVE} StateType;
+  StateType state_;
+
 
 };
 

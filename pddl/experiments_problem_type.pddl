@@ -5,9 +5,11 @@
     robot1 robot2 - robot
     personA - person
     room1 room2 room3 - room
-    hall entrance entrance1 entrance2 entrance3 clean1 clean2 clean3 table sofa corridor - waypoint
-    start_wp_robot1 start_wp_robot2 - waypoint  ; Robot starting waypoint
-
+    hall entrance1 entrance2 entrance3 sofa corridor - waypoint
+    start_wp_robot1 start_wp_robot2 start_wp_robot3 - waypoint  ; Robot starting waypoint
+    clean1 clean2 clean3 - cleaning_waypoint
+    entrance - welcome_waypoint
+    table - destination_waypoint
   )
   
   (:init
@@ -27,15 +29,6 @@
     (waypoint_of_room clean3 room3)
     
     ; Typing of the waypoints for cleaning
-
-    (cleaning_waypoint clean1)
-    (cleaning_waypoint clean2)
-    (cleaning_waypoint clean3)
-    
-    ; Welcom waypoint and destination waypoint
-    
-    (welcome_waypoint entrance)
-    (destination_waypoint table)  
   )
   
   (:goal

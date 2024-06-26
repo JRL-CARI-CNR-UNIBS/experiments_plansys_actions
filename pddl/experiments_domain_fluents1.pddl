@@ -1,11 +1,10 @@
 (define (domain robot_domain)
-  (:requirements :typing :durative-actions)
+  (:requirements :typing :durative-actions :fluents)
   
   (:types
     robot
     room
     waypoint
-    ; cw - waypoint
     person
   )
   
@@ -19,11 +18,19 @@
     (welcome_waypoint ?w - waypoint)
     (waypoint_of_room ?w - waypoint ?rm - room)
     (cleaning_waypoint ?w - waypoint)
+    (patrolling_waypoint ?w - waypoint)
   )
   
+  (:functions
+    (duration_move ?r - robot ?from - waypoint ?to - waypoint)
+    (duration_clean ?r - robot ?rm - room ?w - waypoint)
+    (duration_patrol ?r - robot ?w - waypoint) 
+    (duration_attend_person ?r - robot ?w_welcome - waypoint ?w_dest - waypoint)
+  )
+
   (:durative-action move
     :parameters (?r - robot ?from - waypoint ?to - waypoint)
-    :duration (= ?duration 2) 
+    :duration (= ?duration (duration_move ?r ?from ?to)) 
     :condition (and
       (at start (robot_at ?r ?from))
     )
@@ -35,7 +42,7 @@
   
   (:durative-action clean
     :parameters (?r - robot ?rm - room ?w - waypoint)
-    :duration (= ?duration 5)
+    :duration (= ?duration (duration_clean ?r ?rm ?w))
     :condition (and
       (over all (robot_at ?r ?w))
       (over all (waypoint_of_room ?w ?rm))
@@ -46,19 +53,21 @@
   
   (:durative-action patrol
     :parameters (?r - robot ?w - waypoint)
-    :duration (= ?duration 3)
+    :duration (= ?duration (duration_patrol ?r ?w))
     :condition (and
       (over all (robot_at ?r ?w))
+      (over all (patrolling_waypoint ?w))
     )
     :effect (at end (patrolled ?w))
   )
   
   (:durative-action attend_person
     :parameters (?r - robot ?p - person ?w_welcome - waypoint ?w_dest - waypoint)
-    :duration (= ?duration 4) ; Durata di 4 unità di tempo
+    :duration (= ?duration (duration_attend_person ?r ?w_welcome ?w_dest)) 
     :condition (and
       (at start (robot_at ?r ?w_welcome))
       (at start (person_at ?p ?w_welcome))
+      ; (at start (patrolled ?w_welcome))
       (over all (welcome_waypoint ?w_welcome))
       (over all (destination_waypoint ?w_dest))
     )
@@ -71,5 +80,4 @@
     )
   )
 
-  ; (:metric minimize (total-time))
 )

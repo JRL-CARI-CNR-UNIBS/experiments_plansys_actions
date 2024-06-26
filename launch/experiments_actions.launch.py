@@ -123,7 +123,7 @@ def generate_launch_description():
     )
     robot1_attend_cmd = Node(
         package='experiments_plansys_actions',
-        executable='attend_person_node',
+        executable='assist_person_node',
         name='attend_action_node_robot1',
         output='screen',
         parameters=[waypoints_config_params,
@@ -131,7 +131,7 @@ def generate_launch_description():
     )
     robot2_attend_cmd = Node(
         package='experiments_plansys_actions',
-        executable='attend_person_node',
+        executable='assist_person_node',
         name='attend_action_node_robot2',
         output='screen',
         parameters=[waypoints_config_params,
@@ -170,7 +170,7 @@ def generate_launch_description():
     ld.add_action(robot2_clean_cmd)
     ld.add_action(robot1_attend_cmd)
     ld.add_action(robot2_attend_cmd)
-    # ld.add_action(audio_common_player_node)
-    # ld.add_action(audio_common_tts_node)
+    ld.add_action(audio_common_player_node)
+    ld.add_action(audio_common_tts_node)
 
     return ld
