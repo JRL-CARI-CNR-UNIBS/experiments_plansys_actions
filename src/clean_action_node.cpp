@@ -70,7 +70,7 @@ public:
     {
       declare_parameter<std::vector<std::string>>(start_wp_name, std::vector<std::string>());
       std::vector<std::string> cleaning_waypoints_names = get_parameter(start_wp_name).as_string_array();
-      RCLCPP_INFO(get_logger(), "Cleaning start waypoints [%s]", start_wp_name.c_str());
+      // RCLCPP_INFO(get_logger(), "Cleaning start waypoints [%s]", start_wp_name.c_str());
       cleaning_waypoints_[start_wp_name] = std::vector<geometry_msgs::msg::PoseStamped>();
       for(const auto& cleaning_waypoint: cleaning_waypoints_names)
       {
@@ -87,7 +87,7 @@ public:
         double y = get_parameter(cleaning_waypoint + ".position.y").as_double();
         // double yaw = get_parameter(cleaning_waypoint + ".yaw").as_double();
 
-        RCLCPP_INFO(get_logger(), "Cleaning waypoint [%s] x: %f, y: %f", cleaning_waypoint.c_str(), x, y);
+        // RCLCPP_INFO(get_logger(), "Cleaning waypoint [%s] x: %f, y: %f", cleaning_waypoint.c_str(), x, y);
 
         geometry_msgs::msg::PoseStamped wp;
         wp.header.frame_id = "map";
@@ -176,10 +176,6 @@ public:
 
     RCLCPP_INFO(get_logger(), "Navigation action server ready");
 
-    for(const auto& arg: get_arguments())
-    {
-      RCLCPP_INFO(get_logger(), "Arg start: %s", arg.c_str());
-    }
     auto start_cleaning_waypoint = get_arguments()[2];  // The goal is in the 3rd argument of the action
     RCLCPP_INFO(get_logger(), "Start cleaning from [%s]", start_cleaning_waypoint.c_str());
     
@@ -188,19 +184,19 @@ public:
       RCLCPP_ERROR(get_logger(), "Waypoint not found, has to be managed by specialized arguments");
       return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::FAILURE;
     }
-    RCLCPP_INFO(get_logger(), "Analyzing waypoints");
-    for(const auto& wp: cleaning_waypoints_[start_cleaning_waypoint])
-    {
-      RCLCPP_INFO(get_logger(), "Waypoint x: %f, y: %f", wp.pose.position.x, wp.pose.position.y);
-    }
+    // RCLCPP_INFO(get_logger(), "Analyzing waypoints");
+    // for(const auto& wp: cleaning_waypoints_[start_cleaning_waypoint])
+    // {
+    //   RCLCPP_INFO(get_logger(), "Waypoint x: %f, y: %f", wp.pose.position.x, wp.pose.position.y);
+    // }
     // waypoints_ = cleaning_waypoints_[start_cleaning_waypoint];
     
     // goal_pos_ = waypoints_;
     navigation_goal_.poses = cleaning_waypoints_[start_cleaning_waypoint];
-    for(const auto& wp: navigation_goal_.poses)
-    {
-      RCLCPP_INFO(get_logger(), "Goal x: %f, y: %f", wp.pose.position.x, wp.pose.position.y);
-    }
+    // for(const auto& wp: navigation_goal_.poses)
+    // {
+    //   RCLCPP_INFO(get_logger(), "Goal x: %f, y: %f", wp.pose.position.x, wp.pose.position.y);
+    // }
     // TODO(@samu) to check if the goal is the last one
     dist_to_move = 10; //getDistance(navigation_goal_.poses., current_pos_.pose);
 

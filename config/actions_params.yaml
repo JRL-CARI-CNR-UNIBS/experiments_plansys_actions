@@ -53,4 +53,18 @@ clean_action_node_robot2:
     # fluent_to_update: "move_duration"
     # move_duration: [0,1,2]
 
+attend_person_node_robot1:
+  ros__parameters:
+    namespace: "robot1"
+    specialized_arguments: ["?0"]
+    "?0": ["robot1"]
 
+    action_cost_plugin: "plansys2_actions_cost::MoveActionCostDuration"
+
+attend_person_node_robot2:
+  ros__parameters:
+    namespace: "robot2"
+    specialized_arguments: ["?0"]
+    "?0": ["robot2"]
+
+    action_cost_plugin: "plansys2_actions_cost::MoveActionCostDuration"

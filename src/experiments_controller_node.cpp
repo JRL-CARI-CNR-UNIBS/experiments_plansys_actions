@@ -46,96 +46,15 @@ public:
     problem_expert_ = std::make_shared<plansys2::ProblemExpertClient>();
     executor_client_ = std::make_shared<plansys2::ExecutorClient>();
     init_knowledge();
+    state_ = INIT;
   }
 
   void init_knowledge()
   {
     std::string problem;
     get_parameter_or("problem", problem, std::string(""));
-    RCLCPP_INFO(get_logger(), "Problem: %s", problem.c_str());
 
     problem_expert_->addProblem(problem);
-    /*
-    problem_expert_->addInstance(plansys2::Instance{"robot1", "robot"});
-    problem_expert_->addInstance(plansys2::Instance{"robot2", "robot"});
-
-    problem_expert_->addInstance(plansys2::Instance{"personA", "person"});
-    
-    problem_expert_->addInstance(plansys2::Instance{"room1", "room"});
-    problem_expert_->addInstance(plansys2::Instance{"room2", "room"});
-    problem_expert_->addInstance(plansys2::Instance{"room3", "room"});
-    
-    problem_expert_->addInstance(plansys2::Instance{"entrance", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"hall", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"entrance1", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"entrance2", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"entrance3", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"clean1", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"clean2", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"clean3", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"table", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"sofa", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"corridor", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"room2_middle", "waypoint"});
-    
-    problem_expert_->addInstance(plansys2::Instance{"start_wp_robot1", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"start_wp_robot2", "waypoint"});
-    problem_expert_->addInstance(plansys2::Instance{"start_wp_robot3", "waypoint"});
-
-    problem_expert_->addPredicate(plansys2::Predicate("(robot_at robot1 start_wp_robot1)"));
-    problem_expert_->addPredicate(plansys2::Predicate("(robot_at robot2 start_wp_robot2)"));
-    
-    problem_expert_->addPredicate(plansys2::Predicate("(person_at personA entrance)"));
-    
-    problem_expert_->addPredicate(plansys2::Predicate("(waypoint_of_room clean1 room1)"));
-    problem_expert_->addPredicate(plansys2::Predicate("(waypoint_of_room clean2 room2)"));
-    problem_expert_->addPredicate(plansys2::Predicate("(waypoint_of_room clean3 room3)"));
-    
-    problem_expert_->addPredicate(plansys2::Predicate("(cleaning_waypoint clean1)"));
-    problem_expert_->addPredicate(plansys2::Predicate("(cleaning_waypoint clean2)"));
-    problem_expert_->addPredicate(plansys2::Predicate("(cleaning_waypoint clean3)"));
-    
-    problem_expert_->addPredicate(plansys2::Predicate("(welcome_waypoint entrance)"));
-    problem_expert_->addPredicate(plansys2::Predicate("(destination_waypoint table)"));
-    */
-    // fino a qui
-    // problem_expert_->addInstance(plansys2::Instance{"robot1", "robot"});
-    // problem_expert_->addInstance(plansys2::Instance{"robot2", "robot"});
-
-    // problem_expert_->addInstance(plansys2::Instance{"room1", "room"});
-    // problem_expert_->addInstance(plansys2::Instance{"room2", "room"});
-    // problem_expert_->addInstance(plansys2::Instance{"room3", "room"});
-
-
-    // problem_expert_->addInstance(plansys2::Instance{"room1wp", "clean_waypoint"});
-    // problem_expert_->addInstance(plansys2::Instance{"first_room", "waypoint"});
-    // problem_expert_->addInstance(plansys2::Instance{"door_wp", "waypoint"});
-    // problem_expert_->addInstance(plansys2::Instance{"entrance", "waypoint"});
-    // problem_expert_->addInstance(plansys2::Instance{"room2_middle", "waypoint"});
-
-    // problem_expert_->addInstance(plansys2::Instance{"first_room_middle", "waypoint"});
-    // problem_expert_->addInstance(plansys2::Instance{"table", "waypoint"});
-
-    // // predicate of (waypoint_in ?wp - waypoint ?s - room)
-    // problem_expert_->addPredicate(plansys2::Predicate("(waypoint_in room1wp room1)"));
-
-    // problem_expert_->addPredicate(plansys2::Predicate("(robot_at robot1 door_wp)"));
-    // problem_expert_->addPredicate(plansys2::Predicate("(robot_at robot2 door_wp)"));
-
-    //FIno a qui da scommentare
-
-    // problem_expert_->addInstance(plansys2::Instance{"robot1", "robot"});
-    // problem_expert_->addInstance(plansys2::Instance{"robot2", "robot"});
-    
-    // problem_expert_->addInstance(plansys2::Instance{"first_room", "waypoint"});
-    // problem_expert_->addInstance(plansys2::Instance{"door_wp", "waypoint"});
-    // problem_expert_->addInstance(plansys2::Instance{"entrance", "waypoint"});
-    // problem_expert_->addInstance(plansys2::Instance{"first_room_middle", "waypoint"});
-    // problem_expert_->addInstance(plansys2::Instance{"table", "waypoint"});
-
-    // problem_expert_->addPredicate(plansys2::Predicate("(robot_at robot1 door_wp)"));
-    // problem_expert_->addPredicate(plansys2::Predicate("(robot_at robot2 entrance)"));
-
     
     // std::string problem_file = "/tmp/updated_problem.pddl";
     // if(problem_file.empty())
@@ -166,8 +85,6 @@ public:
 
   void step()
   {
-    // problem_expert_->setGoal(plansys2::Goal("(and (patrolled room2_middle) (patrolled entrance))"));
-    // problem_expert_->setGoal(plansys2::Goal("(and (cleaned room2) (cleaned room1) (cleaned room3))"));
     std::string goal;
 
     get_parameter_or("goal", goal, std::string(""));
@@ -177,10 +94,9 @@ public:
       {
         throw std::runtime_error("Goal of the problem file is not cleared correctly.");
       }
-      RCLCPP_INFO(get_logger(), "Goal: %s",goal.c_str());
       if(!problem_expert_->setGoal(plansys2::Goal(goal.c_str())))
       {
-        throw std::runtime_error("Goal of the problem file is not set correctly.");
+        throw std::runtime_error("Goal defined into param is not set correctly.");
       }
       RCLCPP_INFO(get_logger(), "Goal of the problem is overritten by the param.");
     }
@@ -203,13 +119,13 @@ public:
     }
     // Execute the plan
     if (executor_client_->start_plan_execution(plan.value())) {
-      state_ = PATROL_WP1;
+      state_ = EXECUTE;
     }
 
   }
 
 private:
-  typedef enum {STARTING, PATROL_WP1, PATROL_WP2, PATROL_WP3, PATROL_WP4} StateType;
+  typedef enum {STARTING, INIT, EXECUTE, FINISH} StateType;
   StateType state_;
 
   std::shared_ptr<plansys2::DomainExpertClient> domain_expert_;

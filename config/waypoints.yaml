@@ -2,10 +2,11 @@ waypoints_broadcaster_node:
   ros__parameters:
     waypoints: 
       - entrance
-      # - hall
-      # - entrance1
-      # - entrance2
-      # - entrance3
+      - hall
+      - entrance1
+      - entrance2
+      - entrance3
+      - corridor
       - clean1
       - clean2
       - clean3
@@ -20,6 +21,68 @@ waypoints_broadcaster_node:
       - room3
       - room2_entrance
       - side_room
+    entrance1:
+      position:
+        x: -3.1726500784866736
+        y: -2.983406198383127
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.8914402843002602
+        w: 0.4531381903202059
+    entrance2:
+      position:
+        x: -0.8227639788772801
+        y: -0.4915180660595804
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.9279794958497577
+        w: 0.3726312591321742
+    entrance3:
+      position:
+        x: 2.226679703611858
+        y: 2.072999405328509
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.9127070164301405
+        w: 0.4086146132472395
+    hall_far:
+      position:
+        x: -1.1083607604843388
+        y: -3.21669306159669
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.38582946373343413
+        w: 0.9225701192403593
+    hall:
+      position:
+        x: 0.9462043934400358
+        y: -1.5677662654230362
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.9689086533888822
+        w: 0.24741871672964222
+    corridor:
+      position:
+        x: 1.4847714973306596
+        y: 1.0448139473435756
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.3696493423349747
+        w: 0.9291713317313017
+
+
     door_wp:
       position:
         x: -1.530040460241723
@@ -32,14 +95,14 @@ waypoints_broadcaster_node:
         w: 0.4342260174712049
     entrance:
       position:
-        x: -0.8582638135044962
-        y: -0.28950412631995087
+        x: -1.7318740887381177
+        y: -5.3048923466900355
         z: 0.0
       orientation:
         x: 0.0
         y: 0.0
-        z: 0.8633233089980341
-        w: 0.504651230198327
+        z: -0.9064100651181538
+        w: 0.42239885635795016
     first_room:
       position:
         x: -2.1625185216969816

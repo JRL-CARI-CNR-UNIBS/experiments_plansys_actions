@@ -44,6 +44,9 @@ set(dependencies
     plansys2_action_clients
 )
 
+add_executable(attend_person_node src/attend_person_node.cpp)
+ament_target_dependencies(attend_person_node ${dependencies})
+
 add_executable(move_action_pure_node src/move_action_pure_node.cpp)
 ament_target_dependencies(move_action_pure_node ${dependencies})
 
@@ -65,6 +68,7 @@ install(TARGETS
   move_action_node
   patrol_action_node
   clean_action_node
+  attend_person_node
   experiments_controller_node
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib

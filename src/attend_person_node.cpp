@@ -45,17 +45,17 @@
 
 using namespace std::chrono_literals;
 
-class MoveAction : public plansys2_actions_clients::ActionObservedCostClient
+class AttendPerson : public plansys2_actions_clients::ActionObservedCostClient
 {
 public:
-  MoveAction()
+  AttendPerson()
   : plansys2_actions_clients::ActionObservedCostClient("move", 500ms) //: move_action_cost_loader_("plansys2_actions_cost", "plansys2_actions_cost::MoveActionCostBase")
   {
-    RCLCPP_INFO(get_logger(), "MoveAction created");
+    RCLCPP_INFO(get_logger(), "AttendPerson created");
 
     tf_broadcaster_ =
       std::make_unique<tf2_ros::StaticTransformBroadcaster>(*this);
-    RCLCPP_INFO(get_logger(), "MoveAction created");
+    RCLCPP_INFO(get_logger(), "AttendPerson created");
     declare_parameter<std::string>("namespace", "");
     namespace_ = get_parameter("namespace").as_string();
     
@@ -65,7 +65,7 @@ public:
       geometry_msgs::msg::PoseStamped wp;
       wp.header.frame_id = "map";
       wp.header.stamp = now();
-      RCLCPP_INFO(get_logger(), "Waypoint: %s", name.c_str());
+      // RCLCPP_INFO(get_logger(), "Waypoint: %s", name.c_str());
       declare_parameter<double>(name + ".position.x", 0.0);
       declare_parameter<double>(name + ".position.y", 0.0);
       declare_parameter<double>(name + ".position.z", 0.0);
@@ -91,10 +91,8 @@ public:
       tf_broadcaster_->sendTransform(wp_t);
 
       waypoints_[name] = wp;
-      RCLCPP_INFO(get_logger(), "Waypoint: %s, x: %f, y: %f", name.c_str(), wp.pose.position.x, wp.pose.position.y);
+      // RCLCPP_INFO(get_logger(), "Waypoint: %s, x: %f, y: %f", name.c_str(), wp.pose.position.x, wp.pose.position.y);
     }
-    // move_action_cost_loader_ = pluginlib::ClassLoader<plansys2_actions_cost::MoveActionCostBase>
-    //   ("plansys2_actions_cost", "plansys2_actions_cost::MoveActionCostBase");
     
     declare_parameter<std::string>("action_cost_plugin", "plansys2_actions_cost::MoveActionCostLength");
     std::string action_cost_plugin = get_parameter("action_cost_plugin").as_string();
@@ -107,7 +105,7 @@ public:
     } catch (pluginlib::PluginlibException & ex) {
       std::cerr << "The plugin failed to load for some reason. Error: " << ex.what() << std::endl;
     }
-    RCLCPP_INFO(get_logger(), "MoveAction created");
+    RCLCPP_INFO(get_logger(), "AttendPerson created");
   }
 
   void current_pos_callback(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg)
@@ -124,9 +122,9 @@ public:
     {
       return result;
     }
-    RCLCPP_INFO(get_logger(), "MoveAction pre configured");
+    RCLCPP_INFO(get_logger(), "AttendPerson pre configured");
     move_action_cost_->initialize(std::dynamic_pointer_cast<plansys2_actions_clients::ActionObservedCostClient>(shared_from_this()));
-    RCLCPP_INFO(get_logger(), "MoveAction post configured");
+    RCLCPP_INFO(get_logger(), "AttendPerson post configured");
 
     return CallbackReturnT::SUCCESS; 
   }
@@ -134,7 +132,7 @@ public:
   rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
   on_activate(const rclcpp_lifecycle::State & previous_state)
   {
-    send_feedback(0.0, "Move starting");
+    send_feedback(0.0, "AttendPerson starting");
 
     navigation_action_client_ =
       rclcpp_action::create_client<nav2_msgs::action::NavigateToPose>(
@@ -151,7 +149,7 @@ public:
 
     RCLCPP_INFO(get_logger(), "Navigation action server ready");
 
-    auto wp_to_navigate = get_arguments()[2];  // The goal is in the 3rd argument of the action
+    auto wp_to_navigate = get_arguments()[3];  // The goal is in the 3rd argument of the action
     RCLCPP_INFO(get_logger(), "Start navigation to [%s]", wp_to_navigate.c_str());
 
     goal_pos_ = waypoints_[wp_to_navigate];
@@ -215,7 +213,7 @@ private:
   void compute_action_cost(const plansys2_msgs::msg::ActionExecution::SharedPtr msg)
   {
     RCLCPP_INFO(get_logger(), "Compute action cost");
-    auto wp_to_navigate = get_arguments()[2];  // The goal is in the 3rd argument of the action
+    auto wp_to_navigate = get_arguments()[3];  // The goal is in the 3rd argument of the action
     
     RCLCPP_INFO(get_logger(), "Computing cost to [%s]", wp_to_navigate.c_str()); 
     if(waypoints_.find(wp_to_navigate) == waypoints_.end())
@@ -226,7 +224,7 @@ private:
     }
     auto goal_pose = waypoints_[wp_to_navigate];
     /* Send waypoints to tf broadcaster */
-    // std::cerr << "Sending waypoint to tf broadcaster" << std::endl;
+    std::cerr << "Sending waypoint to tf broadcaster" << std::endl;
     geometry_msgs::msg::TransformStamped wp_t;
     wp_t.header = goal_pose.header;
     wp_t.child_frame_id = std::string(get_name()) + "_" + wp_to_navigate;
@@ -237,6 +235,7 @@ private:
     tf_broadcaster_->sendTransform(wp_t);
 
     move_action_cost_->compute_action_cost(goal_pose, msg);
+
   } 
 
   std::map<std::string, geometry_msgs::msg::PoseStamped> waypoints_;
@@ -270,9 +269,9 @@ private:
 int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
-  auto node = std::make_shared<MoveAction>();
+  auto node = std::make_shared<AttendPerson>();
 
-  node->set_parameter(rclcpp::Parameter("action_name", "move"));
+  node->set_parameter(rclcpp::Parameter("action_name", "attend_person"));
   node->trigger_transition(lifecycle_msgs::msg::Transition::TRANSITION_CONFIGURE);
 
   rclcpp::spin(node->get_node_base_interface());

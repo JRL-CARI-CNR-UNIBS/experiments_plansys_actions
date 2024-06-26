@@ -63,8 +63,7 @@ def generate_launch_description():
         config_file = yaml.safe_load(file)
         waypoints_config_params = config_file['waypoints_broadcaster_node']['ros__parameters']
         clean_waypoints_config_params = config_file['clean_waypoints']['ros__parameters']  
-        # controller_node_param = config_file['controller_node']['ros__parameters']
-
+    
     with open(actions_param_path, 'r') as file:
         actions_config_params = yaml.safe_load(file)
     
@@ -72,9 +71,10 @@ def generate_launch_description():
     robot2_move_action_params = actions_config_params['move_action_node_robot2']['ros__parameters']
     robot1_patrol_action_paramas = actions_config_params['patrol_action_node_robot1']['ros__parameters']
     robot2_patrol_action_paramas = actions_config_params['patrol_action_node_robot2']['ros__parameters']
-
     robot1_clean_action_paramas = actions_config_params['clean_action_node_robot1']['ros__parameters']
     robot2_clean_action_paramas = actions_config_params['clean_action_node_robot2']['ros__parameters']
+    robot1_attend_action_params = actions_config_params['attend_person_node_robot1']['ros__parameters']
+    robot2_attend_action_params = actions_config_params['attend_person_node_robot2']['ros__parameters']
 
     robot1_move_cmd = Node(
         package='experiments_plansys_actions',
@@ -83,7 +83,6 @@ def generate_launch_description():
         output='screen',
         parameters=[waypoints_config_params, 
                     robot1_move_action_params],
-        # remappings=[('/tf_static', 'robot1/tf_static')]
     )
     robot2_move_cmd = Node(
         package='experiments_plansys_actions',
@@ -92,19 +91,7 @@ def generate_launch_description():
         output='screen',
         parameters=[waypoints_config_params, 
                     robot2_move_action_params],
-        # remappings=[('/tf_static', 'robot2/tf_static')]
     )
-
-    # robot2_move_cmd = Node(
-    #     package='experiments_plansys_actions',
-    #     executable='move_action_node',
-    #     name='robot2_move_action_node',
-    #     output='screen',
-    #     parameters=[waypoints_config_params, 
-    #                 move_action_paramas],
-    #     remappings=[('/tf_static', 'robot1/tf_static')]
-    # )
-
     robot1_patrol_cmd = Node(
         package='experiments_plansys_actions',
         executable='patrol_action_node',
@@ -125,9 +112,6 @@ def generate_launch_description():
         output='screen',
         parameters=[clean_waypoints_config_params, 
                     robot1_clean_action_paramas],
-        # namespace='robot1',
-        # remappings=[('/tf', 'tf'),
-        #             ('/tf_static', 'tf_static')]
     )
     robot2_clean_cmd = Node(
         package='experiments_plansys_actions',
@@ -136,18 +120,41 @@ def generate_launch_description():
         output='screen',
         parameters=[clean_waypoints_config_params, 
                     robot2_clean_action_paramas],
-        # namespace='robot1',
-        # remappings=[('/tf', 'tf'),
-        #             ('/tf_static', 'tf_static')]
+    )
+    robot1_attend_cmd = Node(
+        package='experiments_plansys_actions',
+        executable='attend_person_node',
+        name='attend_action_node_robot1',
+        output='screen',
+        parameters=[waypoints_config_params,
+                    robot1_attend_action_params]
+    )
+    robot2_attend_cmd = Node(
+        package='experiments_plansys_actions',
+        executable='attend_person_node',
+        name='attend_action_node_robot2',
+        output='screen',
+        parameters=[waypoints_config_params,
+                    robot2_attend_action_params]
     )
 
-
-    # patrol_cmd = Node(
-    #     package='plansys2_learning_patrolling',
-    #     executable='patrol_action_node',
-    #     name='patrol_action_node',
-    #     output='screen',
-    #     parameters=[waypoints_config_params])
+    audio_common_player_node = Node(
+        package='audio_common',
+        executable='audio_player_node',
+        parameters=[
+            {'channels': 2},
+            {'device': -1}]
+    )
+    audio_common_tts_node = Node(
+        package='tts_ros',
+        executable='tts_node',
+        parameters=[
+            {'chunk': 4096},
+            {'frame_id': ''},
+            {'model': 'tts_models/en/ljspeech/vits'},
+            {'speaker_wav': ''},
+            {'device': 'cuda'}]
+    )
 
     # Create the launch description and populate
     ld = LaunchDescription()
@@ -161,13 +168,9 @@ def generate_launch_description():
     ld.add_action(robot2_patrol_cmd)
     ld.add_action(robot1_clean_cmd)
     ld.add_action(robot2_clean_cmd)
-
-    # ld.add_action(patrol_cmd)
-    # ld.add_action(clean_cmd)
-    # ld.add_action(nav2_cmd)
-
-    # ld.add_action(move_cmd)
-    # # ld.add_action(move_cmd1)
-    # ld.add_action(patrol_cmd)
+    ld.add_action(robot1_attend_cmd)
+    ld.add_action(robot2_attend_cmd)
+    # ld.add_action(audio_common_player_node)
+    # ld.add_action(audio_common_tts_node)
 
     return ld

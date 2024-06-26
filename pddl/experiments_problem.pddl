@@ -6,7 +6,7 @@
     personA - person
     room1 room2 room3 - room
     entrance hall entrance entrance1 entrance2 entrance3 clean1 clean2 clean3 table sofa corridor - waypoint
-    start_wp_robot1 start_wp_robot2 start_wp_robot3 - waypoint  ; Robot starting waypoint
+    start_wp_robot1 start_wp_robot2 start_wp_robot3 room2_middle - waypoint  ; Robot starting waypoint
 
   )
   

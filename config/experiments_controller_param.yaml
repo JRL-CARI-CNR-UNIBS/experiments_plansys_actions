@@ -3,5 +3,5 @@ experiments_controller_node:
   ros__parameters:
     problem_name: "hospital_problem.pddl"
     problem: "" # this is filled automatically by the launcher
-    goal: "(and (patrolled table) (patrolled room2_middle))"
+    goal: "(and (cleaned room1) (cleaned room2) (cleaned room3) (patrolled corridor) (patrolled hall) (delivered persona))"
     
