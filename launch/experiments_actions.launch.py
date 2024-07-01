@@ -43,7 +43,7 @@ def generate_launch_description():
             get_package_share_directory('plansys2_bringup'),
             'launch',
             'plansys2_bringup_launch_monolithic.py')),
-        launch_arguments={'model_file': package_dir + '/pddl/hospital_domain.pddl',
+        launch_arguments={'model_file': package_dir + '/pddl/experiments_domain_fluents2.pddl',
                           'use_auction_mechanism': use_auction_mechanism}.items()
         )
     

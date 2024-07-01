@@ -8,19 +8,19 @@ experiments_controller_node:
 
 experiments_loop_controller_node:
   ros__parameters:
-    problem_name: "hospital_problem.pddl"
-    problem: "" # this is filled automatically by the launcher
-    goal: ""
-    # goal: "(and (cleaned room1) (cleaned room2) (cleaned room3) (patrolled corridor) (patrolled hall) (delivered persona))"
+    problem_name: "experiments_problem_fluents2.pddl" # experiments_problem_fluents2
+    problem: ""   # This is filled automatically by the launcher
+    goal: "(and (delivered persona) (cleaned room1) (cleaned room2) (cleaned room3) (patrolled hall))"  # If goal is empty is kept the one of the problem
     initial_predicates:
-      - "(robot_at robot1 start_wp_robot1)"
-      - "(robot_at robot2 start_wp_robot2)"
+      # - "(robot_at robot1 start_wp_robot1)" # Can be removed
+      # - "(robot_at robot2 start_wp_robot2)" # Can be removed
       - "(person_at persona entrance)"
     reset_predicates:  
       - "(cleaned room1)"
-      # - (cleaned room2)
-      # - (cleaned room3)
-      # - (patrolled hall)
-      # - (delivered personA)
-      # - (person_at personA sofa)
-    n_execution: 1
+      - "(cleaned room2)"
+      - "(cleaned room3)"
+      - "(patrolled hall)"
+      - "(delivered persona)"
+      - "(person_at persona sofa)"
+    n_execution: 10
+    reset_world_goal: "(and (robot_at robot1 start_wp_robot1) (robot_at robot2 start_wp_robot2))"

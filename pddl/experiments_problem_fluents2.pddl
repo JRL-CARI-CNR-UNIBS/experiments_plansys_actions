@@ -3,10 +3,10 @@
   
   (:objects
     robot1 robot2 - robot
-    personA - person
+    persona - person
     room1 room2 room3 - room
   
-    start_wp_robot1 start_wp_robot2 - general_waypoint  ; Robot starting waypoint
+    start_wp_robot1 start_wp_robot2 - general_waypoint  
     clean1 clean2 clean3 - cleaning_waypoint
     entrance - welcome_waypoint
     sofa - destination_waypoint 
@@ -14,22 +14,18 @@
   )
   
   (:init
-    ; Initial state of the robot
     
     (robot_at robot1 start_wp_robot1)
     (robot_at robot2 start_wp_robot2)
     
-    ; Initial state of the person
 
-    (person_at personA entrance)
+    (person_at persona entrance)
     
-    ; Waypoints of the rooms
     
     (waypoint_of_room clean1 room1)
     (waypoint_of_room clean2 room2)
     (waypoint_of_room clean3 room3)
     
-    ; cleaning time
     
     (= (duration_clean robot1 room1 clean1) 10.1)
     (= (duration_clean robot1 room2 clean2) 10.1)
@@ -38,7 +34,6 @@
     (= (duration_clean robot2 room2 clean2) 10.2)
     (= (duration_clean robot2 room3 clean3) 10.2)
 
-    ; patrolling time
 
     (= (duration_patrol robot1 hall) 5.2)
     (= (duration_patrol robot2 hall) 5.4)
@@ -162,13 +157,12 @@
   
   (:goal
     (and
-      (delivered personA)
+      (delivered persona)
       (cleaned room1)
       (cleaned room2)
       (cleaned room3)
       (patrolled hall)
     )
-
   )
 
 )

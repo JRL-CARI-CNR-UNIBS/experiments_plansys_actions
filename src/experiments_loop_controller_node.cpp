@@ -41,17 +41,36 @@ public:
 
     declare_parameter<std::vector<std::string>>("initial_predicates", std::vector<std::string>());
     declare_parameter<std::vector<std::string>>("reset_predicates", std::vector<std::string>());  
+    declare_parameter<std::string>("reset_world_goal", std::string(""));
     get_parameter("initial_predicates", initial_predicates_);
     get_parameter("reset_predicates", reset_predicates_);
+    get_parameter("reset_world_goal", reset_world_goal_);
   }
-  
+
+  typedef enum {STARTING, INIT, EXECUTE, FINISH, RESET, RESETTED} StateType;
+
+  StateType get_state()
+  {
+    return state_;
+  }
+
   bool executing()
   {
     return executor_client_->execute_and_check_plan(); 
   }
+  
   bool is_finish()
   {
-    return !executor_client_->execute_and_check_plan() && executor_client_->getResult();
+    bool is_finish = !executor_client_->execute_and_check_plan() && executor_client_->getResult();
+    if(is_finish) {
+      if(state_ == RESET) {
+        state_ = RESETTED;
+      }
+      else {
+        state_ = FINISH;
+      }
+    }
+    return is_finish;
   }
 
   std::optional<plansys2_msgs::action::ExecutePlan::Result> get_execution_result()
@@ -63,16 +82,15 @@ public:
   {
     for(const auto & predicate: reset_predicates_)
     {
-      if(!problem_expert_->removePredicate(plansys2::Predicate(predicate)))
-      {
+      if(!problem_expert_->removePredicate(plansys2::Predicate(predicate))) {
+        RCLCPP_ERROR(get_logger(), "Predicate %s not removed.", predicate.c_str());
         return false;
       }
     }
     for(const auto & predicate: initial_predicates_)
     {
-      RCLCPP_INFO(get_logger(), "Adding predicate: %s", predicate.c_str());
-      if(!problem_expert_->addPredicate(plansys2::Predicate(predicate)))
-      {
+      if(!problem_expert_->addPredicate(plansys2::Predicate(predicate))) {
+        RCLCPP_ERROR(get_logger(), "Predicate %s not added.", predicate.c_str());
         return false;
       }
     }
@@ -161,11 +179,35 @@ public:
     if (executor_client_->start_plan_execution(plan.value())) {
       state_ = EXECUTE;
     }
+  }
 
+  void reset_world_state()
+  {
+    if(reset_world_goal_.empty()) {
+      return;
+    }
+
+    if(!problem_expert_->clearGoal()) {
+      throw std::runtime_error("Goal of the problem file is not cleared correctly.");
+    }
+    if(!problem_expert_->setGoal(plansys2::Goal(reset_world_goal_.c_str()))) {
+      throw std::runtime_error("Goal defined into param is not set correctly.");
+    }
+    auto domain = domain_expert_->getDomain();
+    auto problem = problem_expert_->getProblem();
+    auto plan = planner_client_->getPlan(domain, problem);
+
+    if (!plan.has_value()) {
+      std::cout << "Could not find plan to reach goal " <<
+        parser::pddl::toString(problem_expert_->getGoal()) << std::endl;
+      return;
+    }
+    if (executor_client_->start_plan_execution(plan.value())) {
+      state_ = RESET;
+    }
   }
 
 private:
-  typedef enum {STARTING, INIT, EXECUTE, FINISH} StateType;
   StateType state_;
 
   std::shared_ptr<plansys2::DomainExpertClient> domain_expert_;
@@ -175,6 +217,7 @@ private:
 
   std::vector<std::string> initial_predicates_;
   std::vector<std::string> reset_predicates_;
+  std::string reset_world_goal_;
 };
 
 int main(int argc, char ** argv)
@@ -198,39 +241,53 @@ int main(int argc, char ** argv)
   rclcpp::Rate rate(5);
   int plan_execution = 0;
   while (rclcpp::ok()) {
-
-    RCLCPP_INFO(node->get_logger(), "Iterating");
-    if (!node->executing() && node->get_execution_result()) {
+    if (node->is_finish()) {
+    // if (!node->executing() && node->get_execution_result()) {
       if (node->get_execution_result().value().success) {
-
-    // auto plan_execution_result = node->get_execution_result();
-    // if(!node->executing() && plan_execution_result)
-    // {
-      // if(plan_execution_result.value().success){  // finihed with success
-        RCLCPP_INFO(node->get_logger(), "Plan finished, result:" );
-        // %s", 
-        //             plan_execution_result.value().success ? "Success" : "Fail");
+        RCLCPP_INFO(node->get_logger(), "Plan finished with success.");
         node->reset_state_variables();
+        
         plan_execution++;
-        if(plan_execution >= n_execution)
-        {
+
+        if(plan_execution >= n_execution) {
           RCLCPP_INFO(node->get_logger(), "All executions finished.");
           break;
         }
-        try{
-          node->plan_execute();
-          RCLCPP_INFO(node->get_logger(), "Execute another plan.");
-        }
-        catch(const std::exception & e)
+        
+        switch(node->get_state())
         {
-          RCLCPP_ERROR(node->get_logger(), e.what());
-          return 0;
-        }        
+          case ExperimentsLoopController::FINISH:
+            try{
+              RCLCPP_INFO(node->get_logger(), "Resetting the world state.");
+              node->reset_world_state();
+            }
+            catch(const std::exception & e) {
+              RCLCPP_ERROR(node->get_logger(), e.what());
+              return 0;
+            }        
+            break;
+          case ExperimentsLoopController::RESETTED:
+            node->reset_state_variables(); // Again since the plan to achieve start init can contain also...
+            try{
+              node->plan_execute();
+              RCLCPP_INFO(node->get_logger(), "Execute another plan.");
+            }
+            catch(const std::exception & e) {
+              RCLCPP_ERROR(node->get_logger(), e.what());
+              return 0;
+            }
+            break;
+          default:
+            RCLCPP_ERROR(node->get_logger(), "State not resetted. %d", node->get_state());
+            return 0;
+        }
       }
-      // finished failed
+      else { // finished failed
+        RCLCPP_INFO(node->get_logger(), "Plan finished with error");
+        break;
+      }
     }
     // executing
-    RCLCPP_INFO(node->get_logger(), "Looping a vuoto");
     rate.sleep();
     rclcpp::spin_some(node->get_node_base_interface());
   }

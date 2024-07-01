@@ -12,6 +12,7 @@ waypoints_broadcaster_node:
       - clean3
       - table
       - couch
+      - sofa
       # - corridor
       - door_wp
       - first_room
@@ -21,6 +22,8 @@ waypoints_broadcaster_node:
       - room3
       - room2_entrance
       - side_room
+      - start_wp_robot1
+      - start_wp_robot2
     entrance1:
       position:
         x: -3.1726500784866736
@@ -163,6 +166,16 @@ waypoints_broadcaster_node:
         y: 0.0
         z: 0.7270246438172352
         w: 0.686611365535426
+    sofa:
+      position:
+        x: -2.1014214030181537
+        y: 4.136488855636463
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.6683359845179064
+        w: 0.743859537680657
     room3:
       position:
         x: 1.9633151931129311
@@ -223,6 +236,27 @@ waypoints_broadcaster_node:
         y: 0.0
         z: 0.8575514442982146
         w: 0.514398211876797
+    start_wp_robot1:
+      position:
+        x: -0.4700000000000184
+        y: -1.7600000000000817
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 1.0
+    start_wp_robot2:
+      position:
+        x: -1.420000000000057
+        y: -3.0000000000002225
+        z: 0.0
+      orientation:
+        x: 0.0
+        y: 0.0
+        z: 0.0
+        w: 1.0
+
 
 clean_waypoints:
   ros__parameters:

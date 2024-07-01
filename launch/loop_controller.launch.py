@@ -28,7 +28,7 @@ def generate_launch_description():
     
     experiments_controller_param_path = os.path.join(
         package_dir,
-        'config',
+        'config', 
         'experiments_controller_param.yaml'
         )
         
