@@ -19,7 +19,7 @@
 #include "plansys2_msgs/msg/action_execution_info.hpp"
 #include "plansys2_msgs/msg/plan.hpp"
 #include "plansys2_msgs/action/execute_plan.hpp"
-
+#include "plansys2_msgs/msg/plan_execution_data_collection.hpp"
 #include "plansys2_domain_expert/DomainExpertClient.hpp"
 #include "plansys2_executor/ExecutorClient.hpp"
 #include "plansys2_planner/PlannerClient.hpp"
@@ -58,7 +58,11 @@ public:
   {
     return executor_client_->execute_and_check_plan(); 
   }
-  
+  plansys2_msgs::msg::Plan get_executed_plan()
+  {
+    return execute_plan_;
+  }
+
   bool is_finish()
   {
     bool is_finish = !executor_client_->execute_and_check_plan() && executor_client_->getResult();
@@ -176,7 +180,8 @@ public:
       RCLCPP_INFO(get_logger(), "[%f] Action: %s, Duration: %f", item.time, item.action.c_str(), item.duration);
     }
     // Execute the plan
-    if (executor_client_->start_plan_execution(plan.value())) {
+    execute_plan_ = plan.value();
+    if (executor_client_->start_plan_execution(execute_plan_)) {
       state_ = EXECUTE;
     }
   }
@@ -218,6 +223,7 @@ private:
   std::vector<std::string> initial_predicates_;
   std::vector<std::string> reset_predicates_;
   std::string reset_world_goal_;
+  plansys2_msgs::msg::Plan execute_plan_;
 };
 
 int main(int argc, char ** argv)
@@ -225,12 +231,16 @@ int main(int argc, char ** argv)
   rclcpp::init(argc, argv);
   auto node = std::make_shared<ExperimentsLoopController>();
 
+  auto plan_execution_data_pub = node->create_publisher<plansys2_msgs::msg::PlanExecutionDataCollection>("plan_execution_data_collection", 10);
+
   node->declare_parameter<int>("n_execution", 1);
   int n_execution = node->get_parameter("n_execution").as_int();
   
   node->init();
+  rclcpp::Time t_start;
   try{
     node->plan_execute();
+    t_start = node->now();
   }
   catch(const std::exception & e)
   {
@@ -257,6 +267,15 @@ int main(int argc, char ** argv)
         switch(node->get_state())
         {
           case ExperimentsLoopController::FINISH:
+          {
+            plansys2_msgs::msg::PlanExecutionDataCollection msg;
+            msg.plan = node->get_executed_plan();
+            msg.action_execution_status = node->get_execution_result().value().action_execution_status;
+            msg.t_start = t_start;
+            msg.t_end = node->now();
+            plan_execution_data_pub->publish(msg);
+          }
+
             try{
               RCLCPP_INFO(node->get_logger(), "Resetting the world state.");
               node->reset_world_state();
@@ -265,11 +284,12 @@ int main(int argc, char ** argv)
               RCLCPP_ERROR(node->get_logger(), e.what());
               return 0;
             }        
-            break;
+          break;
           case ExperimentsLoopController::RESETTED:
             node->reset_state_variables(); // Again since the plan to achieve start init can contain also...
             try{
               node->plan_execute();
+              t_start = node->now();
               RCLCPP_INFO(node->get_logger(), "Execute another plan.");
             }
             catch(const std::exception & e) {
