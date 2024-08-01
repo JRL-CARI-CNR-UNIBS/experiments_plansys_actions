@@ -24,6 +24,7 @@
   <depend>plansys2_pddl_parser</depend>
   <depend>tf2_ros</depend>
   <depend>nav2_costmap_2d</depend>
+  <depend>audio_common_msgs</depend>
   
   <export>
     <build_type>ament_cmake</build_type>
