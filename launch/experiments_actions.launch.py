@@ -43,8 +43,11 @@ def generate_launch_description():
             get_package_share_directory('plansys2_bringup'),
             'launch',
             'plansys2_bringup_launch_monolithic.py')),
-        launch_arguments={'model_file': package_dir + '/pddl/experiments_domain_fluents2.pddl',
-                          'use_auction_mechanism': use_auction_mechanism}.items()
+        launch_arguments={'model_file': package_dir + '/pddl/tamer/domain.pddl',     # Tamer
+                'use_auction_mechanism': use_auction_mechanism}.items()
+
+        # launch_arguments={'model_file': package_dir + '/pddl/experiments_domain_fluents2.pddl',     # This was 50 plans
+        #                   'use_auction_mechanism': use_auction_mechanism}.items()
         )
     
     actions_param_path = os.path.join(

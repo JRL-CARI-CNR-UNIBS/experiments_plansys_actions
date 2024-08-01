@@ -1,4 +1,3 @@
-
 move_action_node_robot1:
   ros__parameters:
     namespace: "robot1"
@@ -7,7 +6,10 @@ move_action_node_robot1:
     specialized_arguments: ["?0"]
     "?0": ["robot1"]
 
-    # fluent_to_update: "move_duration"
+    fluent_to_update: "duration_move"
+    fluent_args: [0,1,2]
+    update_fluent: True
+
     # move_duration: [0,1,2]
 move_action_node_robot2:
   ros__parameters:
@@ -16,13 +18,21 @@ move_action_node_robot2:
     
     specialized_arguments: ["?0"]
     "?0": ["robot2"]
+    fluent_to_update: "duration_move"
+    fluent_args: [0,1,2]
+    update_fluent: True
 
 
+  
 patrol_action_node_robot1:
   ros__parameters:
     namespace: "robot1"
     specialized_arguments: ["?0"]
     "?0": ["robot1"]
+
+    fluent_to_update: "duration_patrol"
+    fluent_args: [0,1]
+    update_fluent: True
 
 patrol_action_node_robot2:
   ros__parameters:
@@ -32,6 +42,9 @@ patrol_action_node_robot2:
     # action_cost_plugin: "plansys2_actions_cost::MoveActionCostDuration"
     # fluent_to_update: "move_duration"
     # move_duration: [0,1,2]
+    fluent_to_update: "duration_patrol"
+    fluent_args: [0,1]
+    update_fluent: True
 
 clean_action_node_robot1:
   ros__parameters:
@@ -40,8 +53,9 @@ clean_action_node_robot1:
     "?0": ["robot1"]
 
     action_cost_plugin: "plansys2_actions_cost::MoveThroughPosesActionCostDuration"
-    # fluent_to_update: "move_duration"
-    # move_duration: [0,1,2]
+    fluent_to_update: "duration_clean"
+    fluent_args: [0,1,2]
+    update_fluent: True
 
 clean_action_node_robot2:
   ros__parameters:
@@ -50,8 +64,9 @@ clean_action_node_robot2:
     "?0": ["robot2"]
 
     action_cost_plugin: "plansys2_actions_cost::MoveThroughPosesActionCostDuration"
-    # fluent_to_update: "move_duration"
-    # move_duration: [0,1,2]
+    fluent_to_update: "duration_clean"
+    fluent_args: [0,1,2]
+    update_fluent: True
 
 attend_person_node_robot1:
   ros__parameters:
@@ -60,6 +75,9 @@ attend_person_node_robot1:
     "?0": ["robot1"]
 
     action_cost_plugin: "plansys2_actions_cost::MoveActionCostDuration"
+    fluent_to_update: "duration_attend_person"
+    fluent_args: [0,2,3]
+    update_fluent: True
 
 attend_person_node_robot2:
   ros__parameters:
@@ -68,3 +86,6 @@ attend_person_node_robot2:
     "?0": ["robot2"]
 
     action_cost_plugin: "plansys2_actions_cost::MoveActionCostDuration"
+    fluent_to_update: "duration_attend_person"
+    fluent_args: [0,2,3]
+    update_fluent: True
