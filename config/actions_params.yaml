@@ -10,6 +10,18 @@ move_action_node_robot1:
     fluent_args: [0,1,2]
     update_fluent: True
 
+    state_observer_plugin: "state_observer::KalmanFilter"
+    state_observer_param_plugin: "state_observer::KalmanFilterParam"
+    state_size: 1
+    input_size: 0
+    output_size: 1
+    state_transition_matrix: [1.0]
+    output_matrix: [1.0]
+    process_noise_covariance: [1.0]
+    measurement_noise_covariance: [1.0]
+    initial_state_covariance: [1.0]
+
+
     # move_duration: [0,1,2]
 move_action_node_robot2:
   ros__parameters:
@@ -22,6 +34,16 @@ move_action_node_robot2:
     fluent_args: [0,1,2]
     update_fluent: True
 
+    state_observer_plugin: "state_observer::KalmanFilter"
+    state_observer_param_plugin: "state_observer::KalmanFilterParam"
+    state_size: 1
+    input_size: 0
+    output_size: 1
+    state_transition_matrix: [1.0]
+    output_matrix: [1.0]
+    process_noise_covariance: [1.0]
+    measurement_noise_covariance: [1.0]
+    initial_state_covariance: [1.0]
 
   
 patrol_action_node_robot1:
@@ -33,6 +55,17 @@ patrol_action_node_robot1:
     fluent_to_update: "duration_patrol"
     fluent_args: [0,1]
     update_fluent: True
+
+    state_observer_plugin: "state_observer::KalmanFilter"
+    state_observer_param_plugin: "state_observer::KalmanFilterParam"
+    state_size: 1
+    input_size: 0
+    output_size: 1
+    state_transition_matrix: [1.0]
+    output_matrix: [1.0]
+    process_noise_covariance: [1.0]
+    measurement_noise_covariance: [1.0]
+    initial_state_covariance: [1.0]
 
 patrol_action_node_robot2:
   ros__parameters:
@@ -46,6 +79,17 @@ patrol_action_node_robot2:
     fluent_args: [0,1]
     update_fluent: True
 
+    state_observer_plugin: "state_observer::KalmanFilter"
+    state_observer_param_plugin: "state_observer::KalmanFilterParam"
+    state_size: 1
+    input_size: 0
+    output_size: 1
+    state_transition_matrix: [1.0]
+    output_matrix: [1.0]
+    process_noise_covariance: [1.0]
+    measurement_noise_covariance: [1.0]
+    initial_state_covariance: [1.0]
+
 clean_action_node_robot1:
   ros__parameters:
     namespace: "robot1"
@@ -56,6 +100,17 @@ clean_action_node_robot1:
     fluent_to_update: "duration_clean"
     fluent_args: [0,1,2]
     update_fluent: True
+
+    state_observer_plugin: "state_observer::KalmanFilter"
+    state_observer_param_plugin: "state_observer::KalmanFilterParam"
+    state_size: 1
+    input_size: 0
+    output_size: 1
+    state_transition_matrix: [1.0]
+    output_matrix: [1.0]
+    process_noise_covariance: [1.0]
+    measurement_noise_covariance: [1.0]
+    initial_state_covariance: [1.0]
 
 clean_action_node_robot2:
   ros__parameters:
@@ -68,6 +123,17 @@ clean_action_node_robot2:
     fluent_args: [0,1,2]
     update_fluent: True
 
+    state_observer_plugin: "state_observer::KalmanFilter"
+    state_observer_param_plugin: "state_observer::KalmanFilterParam"
+    state_size: 1
+    input_size: 0
+    output_size: 1
+    state_transition_matrix: [1.0]
+    output_matrix: [1.0]
+    process_noise_covariance: [1.0]
+    measurement_noise_covariance: [1.0]
+    initial_state_covariance: [1.0]
+
 attend_person_node_robot1:
   ros__parameters:
     namespace: "robot1"
@@ -79,6 +145,17 @@ attend_person_node_robot1:
     fluent_args: [0,2,3]
     update_fluent: True
 
+    state_observer_plugin: "state_observer::KalmanFilter"
+    state_observer_param_plugin: "state_observer::KalmanFilterParam"
+    state_size: 1
+    input_size: 0
+    output_size: 1
+    state_transition_matrix: [1.0]
+    output_matrix: [1.0]
+    process_noise_covariance: [1.0]
+    measurement_noise_covariance: [1.0]
+    initial_state_covariance: [1.0]
+
 attend_person_node_robot2:
   ros__parameters:
     namespace: "robot2"
@@ -89,3 +166,14 @@ attend_person_node_robot2:
     fluent_to_update: "duration_attend_person"
     fluent_args: [0,2,3]
     update_fluent: True
+
+    state_observer_plugin: "state_observer::KalmanFilter"
+    state_observer_param_plugin: "state_observer::KalmanFilterParam"
+    state_size: 1
+    input_size: 0
+    output_size: 1
+    state_transition_matrix: [1.0]
+    output_matrix: [1.0]
+    process_noise_covariance: [1.0]
+    measurement_noise_covariance: [1.0]
+    initial_state_covariance: [1.0]

@@ -22,5 +22,5 @@ experiments_loop_controller_node:
       - "(patrolled hall)"
       - "(delivered persona)"
       - "(person_at persona sofa)"
-    n_execution: 100
+    n_execution: 50
     reset_world_goal: "(and (robot_at robot1 start_wp_robot1) (robot_at robot2 start_wp_robot2))"
