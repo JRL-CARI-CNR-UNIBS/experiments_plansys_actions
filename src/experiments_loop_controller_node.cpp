@@ -257,7 +257,6 @@ int main(int argc, char ** argv)
         RCLCPP_INFO(node->get_logger(), "Plan finished with success.");
         node->reset_state_variables();
         
-        plan_execution++;
 
         if(plan_execution >= n_execution) {
           RCLCPP_INFO(node->get_logger(), "All executions finished.");
@@ -275,6 +274,7 @@ int main(int argc, char ** argv)
             msg.t_end = node->now();
             plan_execution_data_pub->publish(msg);
           }
+            plan_execution++;
 
             try{
               RCLCPP_INFO(node->get_logger(), "Resetting the world state.");
