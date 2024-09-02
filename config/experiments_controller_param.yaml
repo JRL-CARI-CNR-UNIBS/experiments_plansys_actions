@@ -1,10 +1,10 @@
 
-experiments_controller_node:
-  ros__parameters:
-    problem_name: "hospital_problem.pddl"
-    problem: "" # this is filled automatically by the launcher
-    goal: "(and (cleaned room1) (cleaned room2) (cleaned room3) (patrolled corridor) (patrolled hall) (delivered persona))"
-    # If goal is empty is kept the one of the problem
+# experiments_controller_node:
+#   ros__parameters:
+#     problem_name: "hospital_problem.pddl"
+#     problem: "" # this is filled automatically by the launcher
+#     goal: "(and (cleaned room1) (cleaned room2) (cleaned room3) (patrolled corridor) (patrolled hall) (delivered persona))"
+#     # If goal is empty is kept the one of the problem
 
 experiments_loop_controller_node:
   ros__parameters:
@@ -24,3 +24,4 @@ experiments_loop_controller_node:
       - "(person_at persona sofa)"
     n_execution: 50
     reset_world_goal: "(and (robot_at robot1 start_wp_robot1) (robot_at robot2 start_wp_robot2))"
+    plan_solver_timeout: 30.0

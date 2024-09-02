@@ -31,7 +31,12 @@ def generate_launch_description():
         'config', 
         'experiments_controller_param.yaml'
         )
-        
+    planner_client_config = os.path.join(
+        get_package_share_directory('plansys2_bringup'),
+        'params', 
+        'plansys2_params.yaml'
+        )
+
     with open(experiments_controller_param_path, 'r') as file:
         config_file = yaml.safe_load(file)
         experiments_controller_param = config_file['experiments_loop_controller_node']['ros__parameters']
