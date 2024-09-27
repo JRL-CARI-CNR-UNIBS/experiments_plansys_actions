@@ -1,0 +1,25 @@
+humans_scene_manager_node:
+  ros__parameters:
+    test: "test"
+    people_groups: ['first_group_of_people']
+
+    first_group_of_people:
+      - person_1
+      - person_2
+      - person_3
+
+    person_1: 
+      reference_frame: "map"  
+      sdf_file_path: "/home/kalman/projects/turtlebot_ws/src/multi_robot/models/human/casual_man.sdf"
+      position: [0.0, 0.0, 0.0] # x y z
+      orientation: [0.0, 0.0, 0.0, 1.0] # qx qy qz qw
+    person_2: 
+      reference_frame: "map"  
+      sdf_file_path: "/home/kalman/projects/turtlebot_ws/src/multi_robot/models/human/elegant_man.sdf"
+      position: [0.4, 0.4, 0.0] # x y z
+      orientation: [ 0.0, 0.0, -0.7071068, 0.7071068 ] # qx qy qz qw
+    person_3: 
+      reference_frame: "map"  
+      sdf_file_path: "/home/kalman/projects/turtlebot_ws/src/multi_robot/models/human/worker_man.sdf"
+      position: [0.4, -0.4, 0.0] # x y z
+      orientation: [0.0, 0.0, 0.7071068, 0.7071068 ] # qx qy qz qw

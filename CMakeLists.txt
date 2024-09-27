@@ -24,6 +24,8 @@ find_package(plansys2_actions_cost REQUIRED)
 find_package(plansys2_action_clients REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(audio_common_msgs REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+find_package(rclpy REQUIRED)
 
 include_directories(include
   ${plansys2_action_clients_INCLUDE_DIRS} 
@@ -84,6 +86,13 @@ install(TARGETS
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
+)
+
+ament_python_install_package(experiments_plansys_actions)
+
+install(PROGRAMS
+  experiments_plansys_actions/humans_scene_manager.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
