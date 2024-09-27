@@ -5,14 +5,23 @@ from rclpy.node import Node
 from gazebo_msgs.srv import SpawnEntity, DeleteEntity
 import os
 
+from std_srvs.srv import Trigger
+
 class HumanSceneManager(Node):
 
     def __init__(self):
         super().__init__('humans_scene_manager_node')
 
         self.spawn_cli = self.create_client(SpawnEntity, '/spawn_entity')
-        # Declare parameter for the SDF file path
-        # self.declare_parameter('sdf_file_path', '/home/kalman/projects/turtlebot_ws/src/multi_robot/models/human/human.sdf')
+        self.delete_cli = self.create_client(DeleteEntity, '/delete_entity')
+
+        if not self.spawn_cli.wait_for_service(timeout_sec=5.0):
+            self.get_logger().error('/spawn_entity service not available, exiting...')
+            return
+        if not self.delete_cli.wait_for_service(timeout_sec=5.0):
+            self.get_logger().error('/delete_cli service not available, exiting...')
+            return
+
         self.declare_parameter('people_groups', [''])
 
         # sdf_file_path = self.get_parameter('sdf_file_path').get_parameter_value().string_value
@@ -81,10 +90,27 @@ class HumanSceneManager(Node):
                 spawn_request.initial_pose.orientation.w = orientation[3]
                 self.people_groups_request[group].append(spawn_request)
         
-        for request in self.people_groups_request.values():
-            for req in request:
+        # for request in self.people_groups_request.values():
+        #     for req in request:
+        #         self.spawn_future = self.spawn_cli.call_async(req)
+        #         self.spawn_future.add_done_callback(self.callback_spawn)
+
+        self.create_service(Trigger, '/delete_all_entities', self.delete_model)
+        self.create_service(Trigger, '/spawn_all_entities', self.spawn_model)
+
+    def spawn_model(self, request, response):
+        # Create a client to the /spawn_entity service
+        
+        if not self.spawn_cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('/spawn_entity service not available, waiting...')
+            return
+        for group in self.people_groups_request.keys():
+            for req in self.people_groups_request[group]:
                 self.spawn_future = self.spawn_cli.call_async(req)
                 self.spawn_future.add_done_callback(self.callback_spawn)
+        response.success = True
+        response.message = 'All models successfully spawned!'
+        return response
 
     def callback_spawn(self, future):
         try:
@@ -96,25 +122,32 @@ class HumanSceneManager(Node):
         except Exception as e:
             self.get_logger().error(f'An error occurred while spawning: {str(e)}')
 
-    def delete_model(self):
+    def delete_model(self,request, response):
         # Create a client to the /delete_entity service
-        self.delete_cli = self.create_client(DeleteEntity, '/delete_entity')
-        while not self.delete_cli.wait_for_service(timeout_sec=5.0):
+        
+        if not self.delete_cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('/delete_entity service not available, waiting...')
+            return
+        for group in self.people_groups_request.keys():
+            for req in self.people_groups_request[group]:
+                self.get_logger().info(f'Deleting model: {req.name}')
+                model_name = req.name
 
-        # Configure the request to delete the entity
-        delete_request = DeleteEntity.Request()
-        delete_request.name = self.model_name  # Name of the model to be deleted
+                delete_request = DeleteEntity.Request()
+                delete_request.name = model_name  # Name of the model to be deleted
 
-        # Asynchronous service call to delete the entity
-        self.delete_future = self.delete_cli.call_async(delete_request)
-        self.delete_future.add_done_callback(self.callback_delete)
+                # Asynchronous service call to delete the entity
+                self.delete_future = self.delete_cli.call_async(delete_request)
+                self.delete_future.add_done_callback(self.callback_delete)
+        response.success = True
+        response.message = 'All models successfully deleted!'
+        return response
 
     def callback_delete(self, future):
         try:
             response = future.result()
             if response.success:
-                self.get_logger().info(f'Model "{self.model_name}" successfully deleted!')
+                self.get_logger().info(f'Model successfully deleted!')
             else:
                 self.get_logger().error(f'Failed to delete model: {response.status_message}')
         except Exception as e:
