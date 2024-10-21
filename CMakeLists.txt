@@ -26,6 +26,7 @@ find_package(pluginlib REQUIRED)
 find_package(audio_common_msgs REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 find_package(rclpy REQUIRED)
+find_package(plansys2_knowledge_base_msgs REQUIRED)
 
 include_directories(include
   ${plansys2_action_clients_INCLUDE_DIRS} 
@@ -47,6 +48,7 @@ set(dependencies
     pluginlib
     plansys2_action_clients
     audio_common_msgs
+    plansys2_knowledge_base_msgs
 )
 
 add_executable(assist_person_node src/assist_person_node.cpp)
@@ -96,10 +98,12 @@ ament_python_install_package(experiments_plansys_actions)
 
 install(PROGRAMS
   experiments_plansys_actions/humans_scene_manager.py
+  experiments_plansys_actions/task_plan_uncertainty.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
+  add_subdirectory(test)
   find_package(ament_lint_auto REQUIRED)
   set(ament_cmake_copyright_FOUND TRUE)
   set(ament_cmake_cpplint_FOUND TRUE)

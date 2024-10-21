@@ -105,7 +105,10 @@ class DefaultPlanUncertaintyComputation(PlanUncertaintyComputation):
 
             # Add constraints between nodes based on variance and bounds
             for node_A, edges in constraints.items():
-                node_a_variance = np.random.normal(0, 2) if node_A in action_variance else None
+                node_a_variance = None
+                if node_A in action_duration:
+                    node_a_std_dev = np.sqrt(action_variance[node_A])
+                    node_a_variance = np.random.normal(0, node_a_std_dev)
 
                 for lower_bound, upper_bound, node_B in edges:
                     if lower_bound is not None:
