@@ -19,6 +19,7 @@ from ortools.linear_solver import pywraplp
 from abc import ABC, abstractmethod
 import importlib
 from typing import List, Tuple
+import numpy as np
 
 MAX_TIME = 1000
 EPS = 1e-1
@@ -71,12 +72,11 @@ class DefaultPlanUncertaintyComputation(PlanUncertaintyComputation):
         action_duration = {}
         action_variance = {}
 
+        # Retrieve the action duration and variance
         for node in constraints:
-            time_vars[node] = model.NumVar(0, MAX_TIME, f"time_{node}")
-
             for (start, action_instance, duration) in parsed_plan.timed_actions:
                 if str(action_instance) in str(node):
-                    duration_interval = action_instance.action.duration
+                    # duration_interval = action_instance.action.duration
                     upper_time_bound = action_instance.action.duration.upper # The upper bound of the duration is a fluent
                     corrisponging_fluent = str(upper_time_bound).split('(')[0] # Extract the name of the fluent duration_move(...), just duration_move
                     
@@ -90,99 +90,54 @@ class DefaultPlanUncertaintyComputation(PlanUncertaintyComputation):
                     action_duration[node] = expected_value
                     action_variance[node] = variance
                     break       
-        DURATIONS = []
-        AZIONE = []
-        import numpy as np
-        # self.plan_uncertainty_node.get_logger().info(f"Action duration: {action_variance}")
-        for _ in range(500):
-            for node_A, edges in constraints.items():
-                node_a_variance = None
-                if node_A in action_variance:
-                    self.plan_uncertainty_node.get_logger().info(f"Node {node_A} variance: {action_variance[node_A]}")
-                    node_a_variance = np.random.normal(0, 2)
-                # node_a_variance = action_variance[node_A] if node_A in action_variance else None
-                # if node_a_variance is not None:
-                #     node_a_variance = np.random.normal(0, 2)
-                # node_a_variance = np.random.normal(0, 2) if node_a_variance is None else node_a_variance
-                self.plan_uncertainty_node.get_logger().info(f"Node {node_A} variance: {node_a_variance}")
-                for lower_bound, upper_bound, node_B in edges:
-                    self.plan_uncertainty_node.get_logger().info(f"Node A: {node_A}, Node B: {node_B}")
-                    if lower_bound is not None:
-                        self.plan_uncertainty_node.get_logger().info(f"Node A: {lower_bound}")
-                        self.plan_uncertainty_node.get_logger().info(f"Lower bound: {lower_bound}")
-                        self.plan_uncertainty_node.get_logger().info(f"Upper bound: {upper_bound}")
-                        self.plan_uncertainty_node.get_logger().info(f"Node A variance: {node_a_variance}")
-                        if (float(lower_bound) < EPS) or (node_A not in action_duration):
-                            model.Add(time_vars[node_B] - time_vars[node_A] >= float(lower_bound))
-                        else:
-                            if (float(lower_bound) + node_a_variance) < 0:
-                                self.plan_uncertainty_node.get_logger().info(f"Lower bound: {float(lower_bound) + node_a_variance}")
-                                input()
-                            model.Add(time_vars[node_B] - time_vars[node_A] >= float(lower_bound) + node_a_variance)
-                    if upper_bound is not None:
-                        if (float(upper_bound) < EPS) or (node_A not in action_duration):
-                            model.Add(time_vars[node_B] - time_vars[node_A] <= float(upper_bound))
-                        else:
-                            model.Add(time_vars[node_B] - time_vars[node_A] <= float(upper_bound) + node_a_variance)
-            model.Minimize(time_vars[end_plan])
-            status = model.Solve()
-            if status == pywraplp.Solver.OPTIMAL:
-                for variable in time_vars:
-                    self.plan_uncertainty_node.get_logger().info(f"{variable}: {time_vars[variable].solution_value()}")
-            else:
-                print('No optimal solution found.')
-                # return None
-            # sort the time_vars[variable] based on the value
-            plan_duration = time_vars[end_plan].solution_value()
-            for variable in time_vars:
-                self.plan_uncertainty_node.get_logger().info(f"{variable}: {time_vars[variable].solution_value()}")
-                if "START ACTION attend_person(robot2, persona, entrance, sofa)" in str(variable):
-                    start = time_vars[variable].solution_value()
-                if "END ACTION attend_person(robot2, persona, entrance, sofa)" in str(variable):
-                    end = time_vars[variable].solution_value()
-            
-            self.plan_uncertainty_node.get_logger().info(f"Plan duration: {plan_duration}")
-            DURATIONS.append(plan_duration) 
-            AZIONE.append(end-start)
-            model.clear()
-            continue
-            # Make an histogram of the plan durations
-            # self.plan_uncertainty_node.get_logger().info(f"Plan durations: {DURATIONS}")
-
-
-
-            model = pywraplp.Solver.CreateSolver('GLOP')
         
-            start_plan = STNPlanNode(TimepointKind.GLOBAL_START)
-            end_plan = STNPlanNode(TimepointKind.GLOBAL_END)
-            if start_plan not in constraints:
-                constraints[start_plan] = []
-            if end_plan not in constraints:
-                constraints[end_plan] = []
+        # monte-carlo approach
+        plan_durations = []
 
+        for _ in range(500):
+            # Create a new model for each iteration
+            model = pywraplp.Solver.CreateSolver('GLOP')
+            
+            # Create time variables for each node in the constraints
             time_vars = {}
-            # action_duration = {}
-            # action_variance = {}
-
             for node in constraints:
                 time_vars[node] = model.NumVar(0, MAX_TIME, f"time_{node}")
 
-            # reset solution 
-        import seaborn as sns
-        import matplotlib.pyplot as plt
-        
+            # Add constraints between nodes based on variance and bounds
+            for node_A, edges in constraints.items():
+                node_a_variance = np.random.normal(0, 2) if node_A in action_variance else None
 
-        # plott = sns.histplot(DURATIONS, kde=True)
-        # fig = plott.get_figure()
-        # fig.savefig("/home/kalman/Documents/plot.png") 
-        self.plan_uncertainty_node.get_logger().info(f"Plan durations std: {np.std(DURATIONS)}")
-        self.plan_uncertainty_node.get_logger().info(f"Plan durations mean: {np.mean(DURATIONS)}")
-        self.plan_uncertainty_node.get_logger().info(f"Action duration: {np.mean(AZIONE)}")
-        self.plan_uncertainty_node.get_logger().info(f"Action duration std: {np.std(AZIONE)}")
+                for lower_bound, upper_bound, node_B in edges:
+                    if lower_bound is not None:
+                        if float(lower_bound) < EPS or node_A not in action_duration:
+                            model.Add(time_vars[node_B] - time_vars[node_A] >= float(lower_bound))
+                        else:
+                            model.Add(time_vars[node_B] - time_vars[node_A] >= float(lower_bound) + node_a_variance)
 
-                    # fluent_metadata = self.get_fluent_metadata_client.call(get_fluent_metadata_request)
-        return 1, 2
+                    if upper_bound is not None:
+                        if float(upper_bound) < EPS or node_A not in action_duration:
+                            model.Add(time_vars[node_B] - time_vars[node_A] <= float(upper_bound))
+                        else:
+                            model.Add(time_vars[node_B] - time_vars[node_A] <= float(upper_bound) + node_a_variance)
+            
+            # Minimize the time of the end plan
+            model.Minimize(time_vars[end_plan])
+            status = model.Solve()
 
+            if status == pywraplp.Solver.OPTIMAL:
+                plan_duration = time_vars[end_plan].solution_value()
+                plan_durations.append(plan_duration)
+            else:
+                print('No optimal solution found.')
+        mean = np.mean(plan_durations)
+        std_dev = np.std(plan_durations)
+
+        if len(plan_durations) > 0:
+            self.plan_uncertainty_node.get_logger().info(f"Mean: {mean}, Std Dev: {std_dev}")
+            return mean, std_dev
+        self.plan_uncertainty_node.get_logger().warning("Not enough data to compute uncertainty")
+        return None, None
+    
 class TaskPlanUncertainty(Node):
 
     def __init__(self):
