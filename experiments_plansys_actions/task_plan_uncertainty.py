@@ -6,8 +6,8 @@ from rclpy.node import Node
 from std_srvs.srv import Trigger
 from plansys2_msgs.srv import GetDomain, GetProblem, RetrievePlan
 from plansys2_msgs.msg import Plan
-from plansys2_knowledge_base_msgs.srv import GetFluentMetadata
-from plansys2_knowledge_base_msgs.msg import FluentMetadata
+from plansys2_knowledge_base_msgs.srv import GetFluentMetadata, GetPlanMetadata
+from plansys2_knowledge_base_msgs.msg import FluentMetadata, PlanMetadata
 
 from unified_planning.io import PDDLReader
 from unified_planning.plans.plan import PlanKind
@@ -179,7 +179,8 @@ class TaskPlanUncertainty(Node):
             self.get_logger().error('/retrieve_plan service not available, exiting...')
             return 
         
-        self.compute_uncertainty_service = self.create_service(Trigger, 'plan_uncertainty', self.compute_uncertainty)
+        self.retrieve_compute_uncertainty_service = self.create_service(Trigger, 'retrieve_plan_compute_uncertainty', self.retrieve_and_compute_uncertainty)
+        self.compute_uncertainty_service = self.create_service(GetPlanMetadata, 'plan_uncertainty', self.compute_uncertainty)
 
         self.pddl_reader = PDDLReader()
         self.get_logger().info('Task Plan Uncertainty node is ready')
@@ -190,7 +191,7 @@ class TaskPlanUncertainty(Node):
             plan_str_upf_compatible += f"{item.time}: {item.action} [{item.duration}]\n"
         return plan_str_upf_compatible
 
-    def compute_uncertainty(self, request, response):
+    def retrieve_and_compute_uncertainty(self, request, response):
         self.get_logger().info('Computing uncertainty')
         domain_request = GetDomain.Request()
         domain_response = self.get_domain_client.call(domain_request)
@@ -243,6 +244,57 @@ class TaskPlanUncertainty(Node):
             return response
         response.success = False
         response.message = "Error computing uncertainty"
+        return response
+    
+    def compute_uncertainty(self, request, response):
+        self.get_logger().info('Computing uncertainty')
+        domain_str = request.domain
+        problem_str = request.problem
+
+        if not domain_str:
+            response.success = False
+            response.error_info = "Domain empty"
+            return response
+        self.get_logger().info(f'Domain: {domain_str}')
+        
+        self.get_logger().info('Getting problem')
+
+        if not problem_str:
+            response.success = False
+            response.error_info = "Problem empty"
+            return response
+        self.get_logger().info(f'Problem: {problem_str}')
+        try:
+            parsed_problem = self.pddl_reader.parse_problem_string(domain_str, problem_str)
+        except Exception as e:
+            response.success = False
+            response.error_info = "Error parsing problem"
+            return response
+        self.get_logger().info(f'Parsed problem: {parsed_problem}')
+
+        self.get_logger().info('Getting plan')
+        
+        plan: Plan = request.plan
+
+        plan_str_upf_compatible = self._prepare_plan_string(plan)
+        try:
+            parsed_plan = self.pddl_reader.parse_plan_string(problem=parsed_problem, plan_str=plan_str_upf_compatible)
+        except Exception as e:
+            response.success = False
+            response.error_info = "Error parsing plan"
+            return response
+        self.get_logger().info(f'Parsed plan: {parsed_plan}')
+
+        expected_duration, standard_deviation = self.uncertainty_computation.compute_uncertainty(parsed_plan, parsed_problem)
+        if standard_deviation:
+            # response.plan_metadata = PlanMetadata()
+            response.plan_metadata.expected_value = expected_duration
+            response.plan_metadata.std_dev = standard_deviation
+            response.success = True
+            response.error_info = "Uncertainty computed"
+            return response
+        response.success = False
+        response.error_info = "Error computing uncertainty"
         return response
 
 
