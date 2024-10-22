@@ -23,6 +23,7 @@ import numpy as np
 
 MAX_TIME = 1000
 EPS = 1e-1
+
 class PlanUncertaintyComputation(ABC):
     @abstractmethod
     def compute_uncertainty(self, parsed_plan: Plan, parsed_problem: Problem):
@@ -32,8 +33,12 @@ class DefaultPlanUncertaintyComputation(PlanUncertaintyComputation):
     def __init__(self):
 
         self.plan_uncertainty_node = Node('plan_uncertainty_node')
+
         callback_group = rclpy.callback_groups.MutuallyExclusiveCallbackGroup()
-        self.get_fluent_metadata_client = self.plan_uncertainty_node.create_client(GetFluentMetadata, 'get_fluent_metadata', callback_group=callback_group)
+
+        self.get_fluent_metadata_client = self.plan_uncertainty_node.create_client(GetFluentMetadata, 
+                                                                                   'get_fluent_metadata', 
+                                                                                   callback_group=callback_group)
         self.executor = rclpy.executors.MultiThreadedExecutor()
         self.executor.add_node(self.plan_uncertainty_node)
     
@@ -148,7 +153,6 @@ class TaskPlanUncertainty(Node):
 
         self.declare_parameter('plan_uncertainty_computation_module', '')
 
-        # Caricamento della classe per il calcolo dell'incertezza
         plan_uncertainty_computation_module = self.get_parameter('plan_uncertainty_computation_module').get_parameter_value().string_value
         if plan_uncertainty_computation_module:
             module_name, class_name = plan_uncertainty_computation_module.rsplit('.', 1)
@@ -222,7 +226,7 @@ class TaskPlanUncertainty(Node):
             response.message = plan_response.error_info
             return response
         plan: Plan = plan_response.plan
-        # self.get_logger().info(f'Given plan: {plan}')
+
         plan_str_upf_compatible = self._prepare_plan_string(plan)
         try:
             parsed_plan = self.pddl_reader.parse_plan_string(problem=parsed_problem, plan_str=plan_str_upf_compatible)
@@ -231,6 +235,7 @@ class TaskPlanUncertainty(Node):
             response.message = "Error parsing plan"
             return response
         self.get_logger().info(f'Parsed plan: {parsed_plan}')
+
         expected_duration, standard_deviation = self.uncertainty_computation.compute_uncertainty(parsed_plan, parsed_problem)
         if standard_deviation:
             response.success = True
@@ -239,46 +244,6 @@ class TaskPlanUncertainty(Node):
         response.success = False
         response.message = "Error computing uncertainty"
         return response
-
-    # def _convert_to_stn(self, parsed_plan, parsed_problem):
-        
-    #     stn_plan = parsed_plan.convert_to(PlanKind.STN_PLAN, parsed_problem)
-    #     constraints = stn_plan.get_constraints()
-
-    #     time_vars = {}
-
-    #     start_plan = STNPlanNode(TimepointKind.GLOBAL_START)
-    #     end_plan = STNPlanNode(TimepointKind.GLOBAL_END)
-    #     if start_plan not in constraints:
-    #         constraints[start_plan] = []
-    #     if end_plan not in constraints:
-    #         constraints[end_plan] = []
-
-    #     model = pywraplp.Solver.CreateSolver('GLOP')
-
-    #     for node in constraints:
-    #         time_vars[node] = model.NumVar(0, 1000, f"time_{node}")
-    #     for node_A, edges in constraints.items():
-    #         print(node_A)
-    #         for lower_bound, upper_bound, node_B in edges:
-    #             print(lower_bound)
-    #             print(upper_bound)
-    #             print(node_B)
-    #             if lower_bound is not None:
-    #                 model.Add(time_vars[node_B] - time_vars[node_A] >= float(lower_bound))
-    #             if upper_bound is not None:
-    #                 model.Add(time_vars[node_B] - time_vars[node_A] <= float(upper_bound))
-    #         print("--------------------------------")
-    #     model.Minimize(time_vars[end_plan])
-    #     status = model.Solve()
-
-    #     if status == pywraplp.Solver.OPTIMAL:
-    #         for variable in time_vars:
-    #             print(f"{variable}: {time_vars[variable].solution_value()}")
-    #     else:
-    #         print('No optimal solution found.')
-    #         return None
-    #     return time_vars[end_plan].solution_value()
 
 
 def main(args=None):
