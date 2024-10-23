@@ -26,7 +26,7 @@
   <depend>tf2_ros</depend>
   <depend>nav2_costmap_2d</depend>
   <depend>audio_common_msgs</depend>
-  
+  <depend>plansys2_knowledge_base_msgs</depend>
   <depend>rclpy</depend>
 
   <export>
