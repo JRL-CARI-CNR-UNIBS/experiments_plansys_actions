@@ -78,6 +78,9 @@ ament_target_dependencies(experiments_loop_controller_node ${dependencies})
 add_executable(exploration_exploitation_controller_node src/exploration_exploitation_controller_node.cpp)
 ament_target_dependencies(exploration_exploitation_controller_node ${dependencies})
 
+add_executable(domain_problem_node src/domain_problem_node.cpp)
+ament_target_dependencies(domain_problem_node ${dependencies})
+
 install(DIRECTORY launch pddl config DESTINATION share/${PROJECT_NAME})
 
 install(TARGETS
@@ -89,6 +92,7 @@ install(TARGETS
   experiments_controller_node
   experiments_loop_controller_node
   exploration_exploitation_controller_node
+  domain_problem_node
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}

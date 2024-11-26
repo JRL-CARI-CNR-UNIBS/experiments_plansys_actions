@@ -1,7 +1,7 @@
 humans_scene_manager_node:
   ros__parameters:
     test: "test"
-    people_groups: ["first_group_of_people","entrance_group"]
+    people_groups: ["first_group_of_people","entrance_group", "room2"]
 
     first_group_of_people:
       - person_1
@@ -10,6 +10,9 @@ humans_scene_manager_node:
     entrance_group:
       - entrance_person_1
       - entrance_person_2
+    room2:
+      - room2_person_1
+      - room2_person_2
 
     person_1: 
       reference_frame: "map"  
@@ -39,3 +42,13 @@ humans_scene_manager_node:
       orientation: [0.0, 0.0, 0.7071068, 0.7071068 ] # qx qy qz qw
 
      # orientation: [ 0.0, 0.0, -0.9238795, -0.3826834 ] # qx qy qz qw
+    room2_person_1: 
+      reference_frame: "map"  
+      sdf_file_path: "/home/kalman/projects/turtlebot_ws/src/multi_robot/models/human/casual_man.sdf"
+      position: [-3.34, 0.15, 0.0] # x y z
+      orientation: [0.0, 0.0, 0.7071068, 0.7071068 ] # qx qy qz qw
+    room2_person_2:
+      reference_frame: "map"  
+      sdf_file_path: "/home/kalman/projects/turtlebot_ws/src/multi_robot/models/human/elegant_man.sdf"
+      position: [-3.44, 0.9, 0.0] # x y z
+      orientation: [0.0, 0.0, -0.7071068, 0.7071068]
